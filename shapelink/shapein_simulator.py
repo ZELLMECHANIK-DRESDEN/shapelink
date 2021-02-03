@@ -38,17 +38,7 @@ class ShapeInSimulator:
                             settings_names=None,
                             settings_values=None
                             ):
-        """
-        Register which parameters are acquired and shall be
-        send to the other process.
-
-        :param scalar_hdf5_names:
-        :param vector_hdf5_names:
-        :param image_hdf5_names:
-        :param settings_names:
-        :param settings_values:
-        :return:
-        """
+        """Register parameters that are sent to other processes"""
         if settings_values is None:
             settings_values = []
         if settings_names is None:
@@ -107,15 +97,7 @@ class ShapeInSimulator:
                    # vector of vector of short
                    vector_values: List[np.array],
                    image_values: List[np.array]) -> bool:
-        """
-        Send a single event to the other process.
-
-        :param event_id:
-        :param scalar_values:
-        :param vector_values:
-        :param image_values:
-        :return:
-        """
+        """Send a single event to the other process"""
 
         # prepare message in byte stream
         msg = QtCore.QByteArray()
@@ -129,19 +111,14 @@ class ShapeInSimulator:
         assert scalar_values.dtype == float
 
         qstream_write_array(msg_stream, scalar_values)
-        # use this instead of the following
-        # msg_stream.writeUInt32(self.scalar_len)
-        # for e in scalar_values:
-        #    msg_stream.writeFloat(e)
-
         msg_stream.writeUInt32(self.vector_len)
         for e in vector_values:
-            assert e.dtype == np.int16
+            assert e.dtype == np.int16, "fluorescence data is int16"
             qstream_write_array(msg_stream, e)
 
         msg_stream.writeUInt32(self.image_len)
         for e in image_values:
-            assert e.dtype == np.uint8
+            assert e.dtype == np.uint8, "image data is uint8"
             qstream_write_array(msg_stream, e.flatten())
 
         try:
@@ -157,10 +134,7 @@ class ShapeInSimulator:
         return self.respones[-1]
 
     def send_end_of_transmission(self):
-        """
-        Send end of transmission packet.
-        :return:
-        """
+        """Send end of transmission packet"""
         # prepare message in byte stream
         msg = QtCore.QByteArray()
         msg_stream = QtCore.QDataStream(msg, QtCore.QIODevice.WriteOnly)
@@ -189,22 +163,23 @@ class ShapeInSimulator:
 
 
 def run(path):
-    # Read a dataset from dcor via dclab
+    """Run a Shape-In simulator using data from an RT-DC dataset"""
     with dclab.new_dataset(path) as ds:
         print("Opened dataset", ds.identifier, ds.title)
         s = ShapeInSimulator()
         img_features = list()
-        if ('image' in ds.features):
+        if 'image' in ds.features:
             img_features.append('image')
-        if ('mask' in ds.features):
+        if 'mask' in ds.features:
             img_features.append('mask')
-        s.register_parameters(ds.features_scalar,
+        sc_features = list(set(ds.features_scalar) & set(ds.features_innate))
+        s.register_parameters(sc_features,
                               ds['trace'].keys(),
                               img_features,
-                              [], [])
-        # for event_index in [55,33,22,11]:
+                              [],
+                              [])
 
-        t0 = time.time_ns()
+        t0 = time.perf_counter_ns()
         c = 0
 
         print("Send event data:")
@@ -223,12 +198,12 @@ def run(path):
             s.send_event(event_index, np.array(scalars), vectors, images)
             c += 1
 
-        t1 = time.time_ns()
+        t1 = time.perf_counter_ns()
 
         # Finally stop with EOT message
         s.send_end_of_transmission()
 
-        dt = (t1 - t0) / 1000000000.0
+        dt = (t1 - t0) * 1e9
 
         print("Total time: ", dt)
         print("Events/s:   ", c / dt)

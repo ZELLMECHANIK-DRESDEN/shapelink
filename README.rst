@@ -15,7 +15,6 @@ Install with pip:
     pip install shapelink
 
 
-
 Testing
 -------
 Running tests
@@ -28,8 +27,8 @@ Running tests
 
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/shapelink.svg
    :target: https://pypi.python.org/pypi/shapelink
-.. |Tests| image:: https://img.shields.io/github/workflow/status/ZELLMECHANIK-DRESDEN/shapelink/Checks%20on%20Linux
-   :target: https://github.com/ZELLMECHANIK-DRESDEN/shapelink/actions?query=workflow%3A%22Checks+on+Linux%22
-.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/shapelink/master.svg
+.. |Tests| image:: https://img.shields.io/github/workflow/status/ZELLMECHANIK-DRESDEN/shapelink/Checks
+   :target: https://github.com/ZELLMECHANIK-DRESDEN/shapelink/actions?query=workflow%3A%22Checks
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/shapelink/main.svg
    :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/shapelink
 
