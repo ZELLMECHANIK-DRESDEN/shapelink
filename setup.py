@@ -35,6 +35,7 @@ setup(
         "click>=7",
         "dclab>0.32.2",
         "numpy>=1.7.0",
+        "PySide2",
         "pyzmq",
         ],
     entry_points={

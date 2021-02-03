@@ -17,11 +17,13 @@ class EventData:
         self.images = list()
 
 
-class ShapeLinkPlugin(abc.ABCMeta):
-    def __init__(self, bind_to='tcp://*:6666'):
+class ShapeLinkPlugin(abc.ABC):
+    def __init__(self, bind_to='tcp://*:6666', verbose=False):
         super(ShapeLinkPlugin, self).__init__()
-        print("Init Shape-Link")
-        print("Bind to: ", bind_to)
+        self.verbose = verbose
+        if self.verbose:
+            print(" Init Shape-Link")
+            print(" Bind to: ", bind_to)
         self.zmq_context = zmq.Context.instance()
         self.socket = self.zmq_context.socket(zmq.REP)
         self.socket.RCVTIMEO = 5000
@@ -33,13 +35,21 @@ class ShapeLinkPlugin(abc.ABCMeta):
         self.registered_data_format = EventData()
         self.registered = False
 
+    def after_register(self):
+        """Called after registration with Shape-In is complete"""
+        pass
+
+    def after_transmission(self):
+        """Called after Shape-In ends data transmission"""
+
     def handle_messages(self):
         # read first byte
         try:
             # get message from socket
             rcv = QtCore.QByteArray(self.socket.recv())
         except zmq.error.ZMQError:
-            print("ZMQ Error - timed out")
+            if self.verbose:
+                print(" ZMQ Error - timed out")
             return
         rcv_stream = QtCore.QDataStream(rcv, QtCore.QIODevice.ReadOnly)
         r = rcv_stream.readInt64()
@@ -49,19 +59,20 @@ class ShapeLinkPlugin(abc.ABCMeta):
 
         if r == msg_def.MSG_ID_REGISTER:
             # register
-            print("Register data container format:")
             self.registered_data_format.scalars = rcv_stream.readQStringList()
             self.registered_data_format.traces = rcv_stream.readQStringList()
             self.registered_data_format.images = rcv_stream.readQStringList()
-            print("Scalars: ", self.registered_data_format.scalars)
-            print("Traces:  ", self.registered_data_format.traces)
-            print("Images:  ", self.registered_data_format.images)
-            print("ACK register")
             send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
+            if self.verbose:
+                print(" Registered data container formats:")
+                print("  scalars: ", self.registered_data_format.scalars)
+                print("  traces:  ", self.registered_data_format.traces)
+                print("  images:  ", self.registered_data_format.images)
+            self.after_register()
         elif r == msg_def.MSG_ID_EOT:
             # EOT message
-            print("ACK EOT")
             send_stream.writeInt64(msg_def.MSG_ID_EOT_ACK)
+            self.after_transmission()
         elif r >= 0:
             # data package with id r
             # check if id was received already
@@ -91,7 +102,7 @@ class ShapeLinkPlugin(abc.ABCMeta):
             send_stream.writeBool(ret)
         else:
             # unknown message
-            print("!!! Received unknown message header: ", r)
+            raise ValueError("Received unknown message header!")
         self.socket.send(send_data)
 
     @abc.abstractmethod

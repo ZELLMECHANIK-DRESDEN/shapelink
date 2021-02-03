@@ -17,9 +17,11 @@ from .util import qstream_write_array
 
 
 class ShapeInSimulator:
-    def __init__(self, destination="tcp://localhost:6666"):
-        print("Init ShapeIn Simulator")
-        print("Connect to: ", destination)
+    def __init__(self, destination="tcp://localhost:6666", verbose=False):
+        self.verbose = verbose
+        if self.verbose:
+            print("Init ShapeIn Simulator")
+            print("Connect to: ", destination)
         self.zmq_context = zmq.Context.instance()
         self.socket = self.zmq_context.socket(zmq.REQ)
         self.socket.RCVTIMEO = 5000
@@ -73,19 +75,22 @@ class ShapeInSimulator:
             msg_stream.writeQVariant(value)
 
         try:
-            print("Send registration message")
+            if self.verbose:
+                print("Send registration message")
             # send the message over the socket
             self.socket.send(msg)
             # get ACK before return
             rcv = QtCore.QByteArray(self.socket.recv())
         except zmq.error.ZMQError:
-            print("ZMQ Error")
+            if self.verbose:
+                print("ZMQ Error")
             return
 
         rcv_stream = QtCore.QDataStream(rcv, QtCore.QIODevice.ReadOnly)
         r = rcv_stream.readInt64()
         if r == msg_def.MSG_ID_REGISTER_ACK:
-            print("Registration ACK")
+            if self.verbose:
+                print("Registration ACK")
             self.registered = True
         else:
             print("Registering parameters failed!")
@@ -127,7 +132,8 @@ class ShapeInSimulator:
             # get ACK before return
             rcv_data = QtCore.QByteArray(self.socket.recv())
         except zmq.error.ZMQError:
-            print("ZMQ Error")
+            if self.verbose:
+                print("ZMQ Error")
             return
         rcv_stream = QtCore.QDataStream(rcv_data, QtCore.QIODevice.ReadOnly)
         self.respones.append(rcv_stream.readBool())
@@ -144,9 +150,11 @@ class ShapeInSimulator:
         self.registered = False
 
         # print responses
-        print(self.respones)
+        if self.verbose:
+            print(self.respones)
         try:
-            print("Sending EOT:", msg)
+            if self.verbose:
+                print("Sending EOT:", msg)
             # send the message over the socket
             self.socket.send(msg)
             # get ACK before return
@@ -159,7 +167,8 @@ class ShapeInSimulator:
         if r != msg_def.MSG_ID_EOT_ACK:
             print("Did not receive ACK for EOT but: ", r)
         else:
-            print("EOT success")
+            if self.verbose:
+                print("EOT success")
 
 
 def start_simulator(path):
