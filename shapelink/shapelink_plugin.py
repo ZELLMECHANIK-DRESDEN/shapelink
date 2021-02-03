@@ -1,19 +1,13 @@
-"""
-Receive data in real-time from a ShapeIn instance
-via zmq
-"""
-from typing import List, Any, Tuple
+"""Receive data in real-time from a Shape-In instance via zmq"""
+from . import msg_def
+from .util import qstream_read_array
 
-from .msg_defines import *
-from .util import *
-
-import dclab
 import numpy as np
 from PySide2 import QtCore
 import zmq
 
 
-class cell_event:
+class CellEvent:
     def __init__(self):
         self.id = -1
         self.scalars = list()
@@ -21,9 +15,9 @@ class cell_event:
         self.images = list()
 
 
-class shapein_plugin:
+class ShapeLinkPlugin:
     def __init__(self, bind_to='tcp://*:6666'):
-        print("Init ShapeIn Simulator")
+        print("Init Shape-Link")
         print("Bind to: ", bind_to)
         self.zmq_context = zmq.Context.instance()
         self.socket = self.zmq_context.socket(zmq.REP)
@@ -33,7 +27,7 @@ class shapein_plugin:
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0
-        self.registered_data_format = cell_event()
+        self.registered_data_format = CellEvent()
         self.registered = False
 
     def handle_messages(self):
@@ -42,7 +36,7 @@ class shapein_plugin:
             # get message from socket
             rcv = QtCore.QByteArray(self.socket.recv())
         except zmq.error.ZMQError:
-            #print("ZMQ Error - timed out")
+            print("ZMQ Error - timed out")
             return
         rcv_stream = QtCore.QDataStream(rcv, QtCore.QIODevice.ReadOnly)
         r = rcv_stream.readInt64()
@@ -50,7 +44,7 @@ class shapein_plugin:
         send_data = QtCore.QByteArray()
         send_stream = QtCore.QDataStream(send_data, QtCore.QIODevice.WriteOnly)
 
-        if r == MSG_ID_REGISTER:
+        if r == msg_def.MSG_ID_REGISTER:
             # register
             print("Register data container format:")
             self.registered_data_format.scalars = rcv_stream.readQStringList()
@@ -60,16 +54,16 @@ class shapein_plugin:
             print("Traces:  ", self.registered_data_format.traces)
             print("Images:  ", self.registered_data_format.images)
             print("ACK register")
-            send_stream.writeInt64(MSG_ID_REGISTER_ACK)
-        elif r == MSG_ID_EOT:
+            send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
+        elif r == msg_def.MSG_ID_EOT:
             # EOT message
             print("ACK EOT")
-            send_stream.writeInt64(MSG_ID_EOT_ACK)
+            send_stream.writeInt64(msg_def.MSG_ID_EOT_ACK)
         elif r >= 0:
             # data package with id r
             # check if id was received already
             # unpack data
-            e = cell_event()
+            e = CellEvent()
 
             e.id = r
 
@@ -97,26 +91,34 @@ class shapein_plugin:
             print("!!! Received unknown message header: ", r)
         self.socket.send(send_data)
 
-    def handle_event(self, datacontainer : cell_event) -> bool:
+    def handle_event(self, datacontainer: CellEvent) -> bool:
         print("Event ID:", datacontainer.id)
 
-        assert len(datacontainer.scalars) == len(self.registered_data_format.scalars)
-        assert len(datacontainer.traces) == len(self.registered_data_format.traces)
-        assert len(datacontainer.images) == len(self.registered_data_format.images)
+        assert len(datacontainer.scalars) == len(
+            self.registered_data_format.scalars)
+        assert len(datacontainer.traces) == len(
+            self.registered_data_format.traces)
+        assert len(datacontainer.images) == len(
+            self.registered_data_format.images)
 
         if False:
             print("Scalars: ")
-            for name, value in zip(self.registered_data_format.scalars, datacontainer.scalars):
+            for name, value in zip(
+                    self.registered_data_format.scalars,
+                    datacontainer.scalars):
                 print(name, value)
             print("Traces: ")
-            for name, value in zip(self.registered_data_format.traces, datacontainer.traces):
+            for name, value in zip(
+                    self.registered_data_format.traces, datacontainer.traces):
                 print(name, value)
             print("Images: ")
-            for name, value in zip(self.registered_data_format.images, datacontainer.images):
+            for name, value in zip(
+                    self.registered_data_format.images, datacontainer.images):
                 print(name, value)
         return False
 
+
 if __name__ == "__main__":
-    p = shapein_plugin()
+    p = ShapeLinkPlugin()
     while True:
         p.handle_messages()

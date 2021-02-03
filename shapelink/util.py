@@ -1,7 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-"""
-Utility functions for shapein plugin
+"""Utility functions
 
 These functions replicate QDataStreams behavior in C++.
 In PySide2 QDataStream does not accept array type data.
@@ -15,13 +12,11 @@ more significant bytes are written first. (big-endian)
 if numpy "to_bytes" is used the native little-endian
 format appears
 """
-
-import zmq
 import numpy as np
 from PySide2 import QtCore
 
 
-def qstream_write_array(stream : QtCore.QDataStream, array : np.array ) -> int:
+def qstream_write_array(stream: QtCore.QDataStream, array: np.array) -> int:
     """
     Write array data to a stream with a specified type
     :param stream:
@@ -49,26 +44,27 @@ def qstream_write_array(stream : QtCore.QDataStream, array : np.array ) -> int:
     return len(array)
 
 
-def qstream_read_array(stream: QtCore.QDataStream, datatype : np.dtype) -> np.array:
+def qstream_read_array(stream: QtCore.QDataStream,
+                       datatype: np.dtype) -> np.array:
     """
     Read array data from a stream with a specified type
     :param stream:
     :param datatype:
     :return:
     """
-    out = np.array([],dtype=datatype)
-    l = stream.readUInt32()
-    out.resize(l)
+    out = np.array([], dtype=datatype)
+    ll = stream.readUInt32()
+    out.resize(ll)
 
     # Read array data from a stream
     if out.dtype == np.int16:
-        for i in range(l):
+        for i in range(ll):
             out[i] = stream.readInt16()
     elif datatype == np.float:
-        for i in range(l):
+        for i in range(ll):
             out[i] = stream.readFloat()
     elif datatype == np.uint8:
-        for i in range(l):
+        for i in range(ll):
             out[i] = stream.readUInt8()
     else:
         print("Unsupported datatype", datatype)
@@ -81,9 +77,12 @@ if __name__ == '__main__':
     msg = QtCore.QByteArray()
     msg_stream = QtCore.QDataStream(msg, QtCore.QIODevice.ReadWrite)
 
-    qstream_write_array(msg_stream, np.array([1,2,3,5.23,6], dtype=np.int16))
-    qstream_write_array(msg_stream, np.array([1.1,3,4.234,.2342,42.23,234.34,23.33,.22], dtype=np.float))
-    qstream_write_array(msg_stream, np.array([3,4,5,6,255,0,0,0,0,0,5,98], dtype=np.uint8))
+    qstream_write_array(msg_stream, np.array(
+        [1, 2, 3, 5.23, 6], dtype=np.int16))
+    qstream_write_array(msg_stream, np.array(
+        [1.1, 3, 4.234, .2342, 42.23, 234.34, 23.33, .22], dtype=np.float))
+    qstream_write_array(msg_stream, np.array(
+        [3, 4, 5, 6, 255, 0, 0, 0, 0, 0, 5, 98], dtype=np.uint8))
 
     print("After write")
     print(msg)

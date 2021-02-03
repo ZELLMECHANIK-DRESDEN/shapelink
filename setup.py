@@ -32,10 +32,16 @@ setup(
     description=description,
     long_description=open('README.rst').read() if exists('README.rst') else '',
     install_requires=[
+        "click>=7",
         "dclab>0.32.2",
         "numpy>=1.7.0",
         "pyzmq",
         ],
+    entry_points={
+        "console_scripts": [
+            "shape-link = shapelink.cli:main",
+        ],
+    },
     setup_requires=['pytest-runner'],
     python_requires=">=3.6",
     tests_require=["pytest"],
