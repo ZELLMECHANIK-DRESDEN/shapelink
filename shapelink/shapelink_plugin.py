@@ -1,13 +1,15 @@
 """Receive data in real-time from a Shape-In instance via zmq"""
-from . import msg_def
-from .util import qstream_read_array
+import abc
 
 import numpy as np
 from PySide2 import QtCore
 import zmq
 
+from . import msg_def
+from .util import qstream_read_array
 
-class CellEvent:
+
+class EventData:
     def __init__(self):
         self.id = -1
         self.scalars = list()
@@ -15,8 +17,9 @@ class CellEvent:
         self.images = list()
 
 
-class ShapeLinkPlugin:
+class ShapeLinkPlugin(abc.ABCMeta):
     def __init__(self, bind_to='tcp://*:6666'):
+        super(ShapeLinkPlugin, self).__init__()
         print("Init Shape-Link")
         print("Bind to: ", bind_to)
         self.zmq_context = zmq.Context.instance()
@@ -27,7 +30,7 @@ class ShapeLinkPlugin:
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0
-        self.registered_data_format = CellEvent()
+        self.registered_data_format = EventData()
         self.registered = False
 
     def handle_messages(self):
@@ -63,11 +66,11 @@ class ShapeLinkPlugin:
             # data package with id r
             # check if id was received already
             # unpack data
-            e = CellEvent()
+            e = EventData()
 
             e.id = r
 
-            e.scalars = qstream_read_array(rcv_stream, np.float)
+            e.scalars = qstream_read_array(rcv_stream, np.floating)
             assert len(e.scalars) == len(self.registered_data_format.scalars)
 
             n_traces = rcv_stream.readUInt32()
@@ -91,34 +94,6 @@ class ShapeLinkPlugin:
             print("!!! Received unknown message header: ", r)
         self.socket.send(send_data)
 
-    def handle_event(self, datacontainer: CellEvent) -> bool:
-        print("Event ID:", datacontainer.id)
-
-        assert len(datacontainer.scalars) == len(
-            self.registered_data_format.scalars)
-        assert len(datacontainer.traces) == len(
-            self.registered_data_format.traces)
-        assert len(datacontainer.images) == len(
-            self.registered_data_format.images)
-
-        if False:
-            print("Scalars: ")
-            for name, value in zip(
-                    self.registered_data_format.scalars,
-                    datacontainer.scalars):
-                print(name, value)
-            print("Traces: ")
-            for name, value in zip(
-                    self.registered_data_format.traces, datacontainer.traces):
-                print(name, value)
-            print("Images: ")
-            for name, value in zip(
-                    self.registered_data_format.images, datacontainer.images):
-                print(name, value)
+    @abc.abstractmethod
+    def handle_event(self, event_data: EventData) -> bool:
         return False
-
-
-if __name__ == "__main__":
-    p = ShapeLinkPlugin()
-    while True:
-        p.handle_messages()

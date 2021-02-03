@@ -108,7 +108,7 @@ class ShapeInSimulator:
         assert len(vector_values) == self.vector_len
         assert len(image_values) == self.image_len
 
-        assert scalar_values.dtype == float
+        assert np.issubdtype(scalar_values.dtype, np.floating)
 
         qstream_write_array(msg_stream, scalar_values)
         msg_stream.writeUInt32(self.vector_len)
@@ -162,7 +162,7 @@ class ShapeInSimulator:
             print("EOT success")
 
 
-def run(path):
+def start_simulator(path):
     """Run a Shape-In simulator using data from an RT-DC dataset"""
     with dclab.new_dataset(path) as ds:
         print("Opened dataset", ds.identifier, ds.title)
@@ -187,7 +187,7 @@ def run(path):
             scalars = list()
             vectors = list()
             images = list()
-            for e in ds.features_scalar:
+            for e in sc_features:
                 scalars.append(ds[e][event_index])
             for e in ds['trace'].keys():
                 t = np.array(ds['trace'][e][event_index], dtype=np.int16)
@@ -195,7 +195,11 @@ def run(path):
             for e in img_features:
                 i = np.array(ds[e][event_index], dtype=np.uint8)
                 images.append(i)
-            s.send_event(event_index, np.array(scalars), vectors, images)
+
+            s.send_event(event_index,
+                         np.array(scalars, dtype=np.float64),
+                         vectors,
+                         images)
             c += 1
 
         t1 = time.perf_counter_ns()
@@ -203,7 +207,7 @@ def run(path):
         # Finally stop with EOT message
         s.send_end_of_transmission()
 
-        dt = (t1 - t0) * 1e9
+        dt = (t1 - t0) * 1e-9
 
-        print("Total time: ", dt)
-        print("Events/s:   ", c / dt)
+        print("Event rate: {:.5g} Hz".format(c / dt))
+        print("Total time: {:.5g} s".format(dt))
