@@ -4,7 +4,7 @@ context = zmq.Context.instance()
 socket = context.socket(zmq.REP)
 
 socket.bind("tcp://*:8888")
-#socket.bind("ipc://test")
+# socket.bind("ipc://test")
 
 
 while True:

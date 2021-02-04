@@ -46,15 +46,9 @@ def qstream_write_array(stream: QtCore.QDataStream, array: np.array) -> int:
 
 def qstream_read_array(stream: QtCore.QDataStream,
                        datatype: np.dtype) -> np.array:
-    """
-    Read array data from a stream with a specified type
-    :param stream:
-    :param datatype:
-    :return:
-    """
-    out = np.array([], dtype=datatype)
+    """Read array data from a stream with a specified type"""
     ll = stream.readUInt32()
-    out.resize(ll, refcheck=False)
+    out = np.zeros(ll, dtype=datatype)
 
     # Read array data from a stream
     if out.dtype == np.int16:
@@ -68,7 +62,6 @@ def qstream_read_array(stream: QtCore.QDataStream,
             out[ii] = stream.readUInt8()
     else:
         print("Unsupported datatype", datatype)
-        out.resize(0, refcheck=False)
     return out
 
 

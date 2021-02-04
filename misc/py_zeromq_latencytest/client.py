@@ -6,7 +6,7 @@ context = zmq.Context.instance()
 socket = context.socket(zmq.REQ)
 
 socket.connect("tcp://localhost:8888")
-#socket.connect("ipc://test")
+# socket.connect("ipc://test")
 
 # initalize variables, otherwise first time measurement is too long
 # because variables are initalized there
@@ -28,8 +28,15 @@ while True:
 
     # calculation of mean value
     counter += 1
-    dt_us = (time2 - time1)/1000.0
+    dt_us = (time2 - time1) / 1000.0
     time_sum += dt_us
     print("Times: ", time1, time2, dt_us)
-    print("ZMQ: sent: ! received: ", ret, " in ", dt_us, " µs, mean: ", time_sum/counter)
+    print(
+        "ZMQ: sent: ! received: ",
+        ret,
+        " in ",
+        dt_us,
+        " µs, mean: ",
+        time_sum /
+        counter)
     time.sleep(0.5)
