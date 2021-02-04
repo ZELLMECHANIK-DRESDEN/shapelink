@@ -81,7 +81,7 @@ class ShapeLinkPlugin(abc.ABC):
 
             e.id = r
 
-            e.scalars = qstream_read_array(rcv_stream, np.floating)
+            e.scalars = qstream_read_array(rcv_stream, np.float64)
             assert len(e.scalars) == len(self.registered_data_format.scalars)
 
             n_traces = rcv_stream.readUInt32()

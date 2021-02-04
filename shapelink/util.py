@@ -30,7 +30,7 @@ def qstream_write_array(stream: QtCore.QDataStream, array: np.array) -> int:
         stream.writeUInt32(len(array))
         for e in array:
             stream.writeInt16(e)
-    elif array.dtype == np.float:
+    elif array.dtype == np.float64:
         stream.writeUInt32(len(array))
         for e in array:
             stream.writeFloat(e)
@@ -60,7 +60,7 @@ def qstream_read_array(stream: QtCore.QDataStream,
     if out.dtype == np.int16:
         for ii in range(ll):
             out[ii] = stream.readInt16()
-    elif datatype == np.floating:
+    elif datatype == np.float64:
         for ii in range(ll):
             out[ii] = stream.readFloat()
     elif datatype == np.uint8:
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     qstream_write_array(msg_stream, np.array(
         [1, 2, 3, 5.23, 6], dtype=np.int16))
     qstream_write_array(msg_stream, np.array(
-        [1.1, 3, 4.234, .2342, 42.23, 234.34, 23.33, .22], dtype=np.float))
+        [1.1, 3, 4.234, .2342, 42.23, 234.34, 23.33, .22], dtype=np.float64))
     qstream_write_array(msg_stream, np.array(
         [3, 4, 5, 6, 255, 0, 0, 0, 0, 0, 5, 98], dtype=np.uint8))
 
@@ -91,5 +91,5 @@ if __name__ == '__main__':
     msg_stream.device().reset()
 
     print(qstream_read_array(msg_stream, np.int16))
-    print(qstream_read_array(msg_stream, np.float))
+    print(qstream_read_array(msg_stream, np.float64))
     print(qstream_read_array(msg_stream, np.uint8))
