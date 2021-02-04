@@ -54,7 +54,7 @@ def qstream_read_array(stream: QtCore.QDataStream,
     """
     out = np.array([], dtype=datatype)
     ll = stream.readUInt32()
-    out.resize(ll)
+    out.resize(ll, refcheck=False)
 
     # Read array data from a stream
     if out.dtype == np.int16:
@@ -68,7 +68,7 @@ def qstream_read_array(stream: QtCore.QDataStream,
             out[ii] = stream.readUInt8()
     else:
         print("Unsupported datatype", datatype)
-        out.resize(0)
+        out.resize(0, refcheck=False)
     return out
 
 
