@@ -7,6 +7,12 @@ Shape-Link
 Write your own plug-in for real-time data processing with Shape-In.
 
 
+Documentation
+-------------
+The documentation is available at
+`shapelink.readthedocs.io <https://shapelink.readthedocs.io>`__.
+
+
 Installation
 ------------
 Install with pip:
