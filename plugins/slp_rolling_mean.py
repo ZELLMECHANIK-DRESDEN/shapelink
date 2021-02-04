@@ -13,7 +13,7 @@ class RollingMeansPlugin(ShapeLinkPlugin):
     """Displays a rolling mean of a few scalar features"""
     def __init__(self, *args, **kwargs):
         super(RollingMeansPlugin, self).__init__(*args, **kwargs)
-        self.window_size = 10
+        self.window_size = 100
         self.scalar_data = {}
 
     def after_register(self):
@@ -31,7 +31,8 @@ class RollingMeansPlugin(ShapeLinkPlugin):
             self.scalar_data[feat][window_index] = event_data.scalars[ii]
         # print the first three features to stdout
         msgs = [" Rolling means: "]
-        for ii in range(3):
+        num_prints = min(3, len(self.registered_data_format.scalars))
+        for ii in range(num_prints):
             feat = self.registered_data_format.scalars[ii]
             msgs.append("{}: {:.3g}".format(feat,
                                             np.mean(self.scalar_data[feat])))

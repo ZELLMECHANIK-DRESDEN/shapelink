@@ -171,39 +171,50 @@ class ShapeInSimulator:
                 print("EOT success")
 
 
-def start_simulator(path):
+def start_simulator(path, features=None, verbose=1):
     """Run a Shape-In simulator using data from an RT-DC dataset"""
     with dclab.new_dataset(path) as ds:
-        print("Opened dataset", ds.identifier, ds.title)
+        if verbose:
+            print("Opened dataset", ds.identifier, ds.title)
+        if features is None:
+            features = ds.features_innate
         s = ShapeInSimulator()
-        img_features = list()
-        if 'image' in ds.features:
-            img_features.append('image')
-        if 'mask' in ds.features:
-            img_features.append('mask')
-        sc_features = list(set(ds.features_scalar) & set(ds.features_innate))
-        s.register_parameters(sc_features,
-                              ds['trace'].keys(),
-                              img_features,
-                              [],
-                              [])
+        im_features = sorted({"image", "mask"}
+                             & set(ds.features)
+                             & set(features))
+        sc_features = sorted(set(ds.features_scalar)
+                             & set(ds.features)
+                             & set(features))
+        if "trace" in ds and "trace" in features:
+            tr_features = sorted(ds['trace'].keys())
+        else:
+            tr_features = []
+
+        s.register_parameters(
+            scalar_hdf5_names=sc_features,
+            vector_hdf5_names=tr_features,
+            image_hdf5_names=im_features,
+            settings_names=[],
+            settings_values=[],
+        )
 
         t0 = time.perf_counter_ns()
         c = 0
 
-        print("Send event data:")
-        for event_index in range(min(100, len(ds))):
+        if verbose:
+            print("Send event data:")
+        for event_index in range(len(ds)):
             scalars = list()
             vectors = list()
             images = list()
-            for e in sc_features:
-                scalars.append(ds[e][event_index])
-            for e in ds['trace'].keys():
-                t = np.array(ds['trace'][e][event_index], dtype=np.int16)
-                vectors.append(t)
-            for e in img_features:
-                i = np.array(ds[e][event_index], dtype=np.uint8)
-                images.append(i)
+            for feat in sc_features:
+                scalars.append(ds[feat][event_index])
+            for feat in tr_features:
+                tr = np.array(ds['trace'][feat][event_index], dtype=np.int16)
+                vectors.append(tr)
+            for feat in im_features:
+                im = np.array(ds[feat][event_index], dtype=np.uint8)
+                images.append(im)
 
             s.send_event(event_index,
                          np.array(scalars, dtype=np.float64),
@@ -218,5 +229,6 @@ def start_simulator(path):
 
         dt = (t1 - t0) * 1e-9
 
-        print("Event rate: {:.5g} Hz".format(c / dt))
-        print("Total time: {:.5g} s".format(dt))
+        if verbose:
+            print("Simulation event rate: {:.5g} Hz".format(c / dt))
+            print("Simulation time: {:.5g} s".format(dt))

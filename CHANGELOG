@@ -1,2 +1,4 @@
+0.0.2
+ - feat: rudimentary command-line interface for running plugins
 0.0.1
  - initial release
