@@ -46,7 +46,7 @@ class RollingMeansPlugin(ShapeLinkPlugin):
 
 info = {
     "class": RollingMeansPlugin,
-    "description": "Displays a rolling mean of a few scalar features",
+    "description": "Display the rolling mean of a few scalar features",
     "name": "Rolling Means",
     "version": "0.1.0",
 }
