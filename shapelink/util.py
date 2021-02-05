@@ -23,46 +23,18 @@ def qstream_write_array(stream: QtCore.QDataStream, array: np.array) -> int:
     :param array:
     :return:
     """
-    # Write array data as:
-    # Uint32 : number of elements
-    # ntimes dtype : data
-    if array.dtype == np.int16:
-        stream.writeUInt32(len(array))
-        for e in array:
-            stream.writeInt16(e)
-    elif array.dtype == np.float64:
-        stream.writeUInt32(len(array))
-        for e in array:
-            stream.writeFloat(e)
-    elif array.dtype == np.uint8:
-        stream.writeUInt32(len(array))
-        for e in array:
-            stream.writeUInt8(e)
-    else:
-        return 0
-    # return n written elements
+    data_array = QtCore.QByteArray(array.tobytes())
+    stream << data_array
     return len(array)
 
 
 def qstream_read_array(stream: QtCore.QDataStream,
                        datatype: np.dtype) -> np.array:
     """Read array data from a stream with a specified type"""
-    ll = stream.readUInt32()
-    out = np.zeros(ll, dtype=datatype)
-
-    # Read array data from a stream
-    if out.dtype == np.int16:
-        for ii in range(ll):
-            out[ii] = stream.readInt16()
-    elif datatype == np.float64:
-        for ii in range(ll):
-            out[ii] = stream.readFloat()
-    elif datatype == np.uint8:
-        for ii in range(ll):
-            out[ii] = stream.readUInt8()
-    else:
-        print("Unsupported datatype", datatype)
-    return out
+    data_array = QtCore.QByteArray()
+    stream >> data_array
+    data = np.frombuffer(data_array, dtype=datatype)
+    return data
 
 
 if __name__ == '__main__':

@@ -1,3 +1,8 @@
+0.1.2
+ - fix: Running a plugin with the CLI did not work when
+   run without --with-simulator option
+ - ref: write stream data using QByteArray which significantly
+   improves the event rate (#2)
 0.1.1
  - docs: add section for writing plugins
 0.1.0

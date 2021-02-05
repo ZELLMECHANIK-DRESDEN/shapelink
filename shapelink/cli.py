@@ -61,7 +61,7 @@ def run_plugin(path, with_simulator=None, features=None):
                               args=(with_simulator, features, 0))
         th.start()
     else:
-        if features is None:
+        if features is not None:
             raise ValueError("the '--features' option can only be used in "
                              + "conjunction with the '--with-simulator' flag!")
     path = pathlib.Path(path)
