@@ -23,7 +23,7 @@ def main():
 def run_simulator(path, features=None):
     """Run the Shape-In simulator using data from an RT-DC dataset file
 
-    Example usage:
+    Example usage::
 
        shape-link run-simulator --features image,deform /path/to/data.rtdc
     """
@@ -34,7 +34,7 @@ def run_simulator(path, features=None):
 
 @click.command()
 @click.argument("path")
-@click.option("--with-simulator", "-s",
+@click.option("--with-simulator", "-w",
               help="Run the Shape-In simulator in the background "
                    + "using the RT-DC dataset specified (used for testing).")
 @click.option("--features", "-f",
@@ -43,7 +43,17 @@ def run_simulator(path, features=None):
                    + "A list of valid feature names can be found in "
                    + "the dclab docs (Advanced Usage -> Notation).")
 def run_plugin(path, with_simulator=None, features=None):
-    """Run a Shape-Link plugin file"""
+    """Run a Shape-Link plugin file
+
+    Example usages::
+
+        # run a plugin
+        shape-link run-plugin plugins/slp_rolling_mean.py
+        # run a plugin with a simulator thread (for plugin testing)
+        shape-link run-plugin -w data.rtdc -f image,deform slp_rolling_mean.py
+
+
+    """
     if with_simulator is not None:
         if features is not None:
             features = [f.strip() for f in features.split(",")]
