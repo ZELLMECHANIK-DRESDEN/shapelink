@@ -19,6 +19,15 @@ class EventData:
 
 class ShapeLinkPlugin(abc.ABC):
     def __init__(self, bind_to='tcp://*:6666', verbose=False):
+        """Shape-Link plug-in meta class
+
+        Parameters
+        ----------
+        bind_to: str
+            IP and port to bind to (where Shape-In runs)
+        verbose: bool
+            Set to `True` to see additional debugging information.
+        """
         super(ShapeLinkPlugin, self).__init__()
         self.verbose = verbose
         if self.verbose:
@@ -43,6 +52,11 @@ class ShapeLinkPlugin(abc.ABC):
         """Called after Shape-In ends data transmission"""
 
     def handle_messages(self):
+        """Handle messages from Shape-In
+
+        Please don't override this function. Use
+        :func:`ShapeLinkPlugin.handle_event` for your customized plugins.
+        """
         # read first byte
         try:
             # get message from socket
@@ -107,4 +121,5 @@ class ShapeLinkPlugin(abc.ABC):
 
     @abc.abstractmethod
     def handle_event(self, event_data: EventData) -> bool:
+        """Abstract method to be overridden by plugins implementations"""
         return False

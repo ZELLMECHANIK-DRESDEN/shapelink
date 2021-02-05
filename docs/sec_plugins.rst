@@ -1,6 +1,6 @@
-===========================
-Writing Shape-Link Plug-ins
-===========================
+================
+Writing Plug-ins
+================
 
 A Shape-Link plug-in is a Python script with a class derived from
 :class:`shapelink.ShapeLinkPlugin <shapelink.shapelink_plugin.ShapeLinkPlugin>`
@@ -23,5 +23,8 @@ and
 :func:`after_transmission <shapelink.shapelink_plugin.ShapeLinkPlugin.after_transmission>`
 can be used to set things up
 (e.g. creation of an additional output file) or to tear things down (e.g.
-closing that file). The ``info`` dictionary is required so that the plugin
+closing that file). Use the
+:func:`__init__ <shapelink.shapelink_plugin.ShapeLinkPlugin.__init__>`
+function for defining additional class properties.
+The ``info`` dictionary is required so that the plugin
 can be run via the :ref:`sec_cli`.
