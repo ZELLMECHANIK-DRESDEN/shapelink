@@ -190,4 +190,5 @@ texinfo_documents = [
 intersphinx_mapping = {
     "python": ('https://docs.python.org/', None),
     "numpy": ('http://docs.scipy.org/doc/numpy', None),
+    "dclab": ('https://dclab.readthedocs.io/en/stable/', None),
     }

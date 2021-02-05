@@ -13,6 +13,7 @@ Documentation
 
    sec_getting_started
    sec_cli
+   sec_plugins
    sec_code_reference
 
 .. toctree::
