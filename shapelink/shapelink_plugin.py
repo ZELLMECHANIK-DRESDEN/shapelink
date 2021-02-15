@@ -14,6 +14,7 @@ class EventData:
         self.id = -1
         self.scalars = list()
         self.traces = list()
+        self.im_shape = np.array([])
         self.images = list()
 
 
@@ -76,12 +77,14 @@ class ShapeLinkPlugin(abc.ABC):
             self.registered_data_format.scalars = rcv_stream.readQStringList()
             self.registered_data_format.traces = rcv_stream.readQStringList()
             self.registered_data_format.images = rcv_stream.readQStringList()
+            self.registered_data_format.im_shape = rcv_stream.readQStringList()
             send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
             if self.verbose:
                 print(" Registered data container formats:")
                 print("  scalars: ", self.registered_data_format.scalars)
                 print("  traces:  ", self.registered_data_format.traces)
                 print("  images:  ", self.registered_data_format.images)
+                print("  im_shape:  ", self.registered_data_format.im_shape)
             self.after_register()
         elif r == msg_def.MSG_ID_EOT:
             # EOT message
@@ -104,14 +107,18 @@ class ShapeLinkPlugin(abc.ABC):
             for i in range(n_traces):
                 e.traces.append(qstream_read_array(rcv_stream, np.int16))
 
+            e.im_shape = qstream_read_array(rcv_stream, np.uint8)
+            assert len(e.im_shape) == 2
+
             n_images = rcv_stream.readUInt32()
             assert n_images == len(self.registered_data_format.images)
             # read images piece by piece
             for i in range(n_images):
                 e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                # and re-shape
-                # ???
+                e.images = np.reshape(e.images, e.im_shape)
+
             # pass event object to user-defined method
+
             ret = self.handle_event(e)
             send_stream.writeBool(ret)
         else:

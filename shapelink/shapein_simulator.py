@@ -101,6 +101,7 @@ class ShapeInSimulator:
                    scalar_values: np.array,
                    # vector of vector of short
                    vector_values: List[np.array],
+                   im_shape: np.array,
                    image_values: List[np.array]) -> bool:
         """Send a single event to the other process"""
 
@@ -116,10 +117,14 @@ class ShapeInSimulator:
         assert np.issubdtype(scalar_values.dtype, np.floating)
 
         qstream_write_array(msg_stream, scalar_values)
+
         msg_stream.writeUInt32(self.vector_len)
         for e in vector_values:
             assert e.dtype == np.int16, "fluorescence data is int16"
             qstream_write_array(msg_stream, e)
+
+        # im_shape
+        qstream_write_array(msg_stream, im_shape)
 
         msg_stream.writeUInt32(self.image_len)
         for e in image_values:
@@ -206,7 +211,10 @@ def start_simulator(path, features=None, verbose=1):
         for event_index in range(len(ds)):
             scalars = list()
             vectors = list()
+            im_shape = np.array(ds["image"][event_index].shape,
+                                dtype=np.uint8)
             images = list()
+
             for feat in sc_features:
                 scalars.append(ds[feat][event_index])
             for feat in tr_features:
@@ -219,6 +227,7 @@ def start_simulator(path, features=None, verbose=1):
             s.send_event(event_index,
                          np.array(scalars, dtype=np.float64),
                          vectors,
+                         im_shape,
                          images)
             c += 1
 
