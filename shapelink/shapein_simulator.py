@@ -31,7 +31,7 @@ class ShapeInSimulator:
         self.vector_len = 0
         self.image_len = 0
         self.registered = False
-        self.respones = list()
+        self.response = list()
 
     def register_parameters(self,
                             scalar_hdf5_names=None,
@@ -57,7 +57,7 @@ class ShapeInSimulator:
         self.scalar_len = len(scalar_hdf5_names)
         self.vector_len = len(vector_hdf5_names)
         self.image_len = len(image_hdf5_names)
-        self.respones.clear()
+        self.response.clear()
 
         # prepare message in byte stream
         msg = QtCore.QByteArray()
@@ -136,8 +136,8 @@ class ShapeInSimulator:
                 print("ZMQ Error")
             return
         rcv_stream = QtCore.QDataStream(rcv_data, QtCore.QIODevice.ReadOnly)
-        self.respones.append(rcv_stream.readBool())
-        return self.respones[-1]
+        self.response.append(rcv_stream.readBool())
+        return self.response[-1]
 
     def send_end_of_transmission(self):
         """Send end of transmission packet"""
@@ -151,7 +151,7 @@ class ShapeInSimulator:
 
         # print responses
         if self.verbose:
-            print(self.respones)
+            print(self.response)
         try:
             if self.verbose:
                 print("Sending EOT:", msg)
