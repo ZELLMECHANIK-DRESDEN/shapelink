@@ -30,6 +30,7 @@ class ShapeInSimulator:
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0
+        self.image_shape_len = 2
         self.registered = False
         self.response = list()
 
@@ -37,6 +38,7 @@ class ShapeInSimulator:
                             scalar_hdf5_names=None,
                             vector_hdf5_names=None,
                             image_hdf5_names=None,
+                            image_shape=None,
                             settings_names=None,
                             settings_values=None
                             ):
@@ -47,6 +49,8 @@ class ShapeInSimulator:
             settings_names = []
         if image_hdf5_names is None:
             image_hdf5_names = []
+        if image_shape is None:
+            image_shape = []
         if vector_hdf5_names is None:
             vector_hdf5_names = []
         if scalar_hdf5_names is None:
@@ -57,6 +61,7 @@ class ShapeInSimulator:
         self.scalar_len = len(scalar_hdf5_names)
         self.vector_len = len(vector_hdf5_names)
         self.image_len = len(image_hdf5_names)
+        self.image_shape_len = len(image_shape)
         self.response.clear()
 
         # prepare message in byte stream
@@ -68,6 +73,7 @@ class ShapeInSimulator:
         msg_stream.writeQStringList(scalar_hdf5_names)
         msg_stream.writeQStringList(vector_hdf5_names)
         msg_stream.writeQStringList(image_hdf5_names)
+        qstream_write_array(msg_stream, image_shape)
 
         # send settings
         for name, value in zip(settings_names, settings_values):
@@ -116,6 +122,7 @@ class ShapeInSimulator:
         assert np.issubdtype(scalar_values.dtype, np.floating)
 
         qstream_write_array(msg_stream, scalar_values)
+
         msg_stream.writeUInt32(self.vector_len)
         for e in vector_values:
             assert e.dtype == np.int16, "fluorescence data is int16"
@@ -190,10 +197,13 @@ def start_simulator(path, features=None, verbose=1):
         else:
             tr_features = []
 
+        image_shape = np.array(ds["image"][0].shape, dtype=np.uint16)
+
         s.register_parameters(
             scalar_hdf5_names=sc_features,
             vector_hdf5_names=tr_features,
             image_hdf5_names=im_features,
+            image_shape=image_shape,
             settings_names=[],
             settings_values=[],
         )
@@ -207,6 +217,7 @@ def start_simulator(path, features=None, verbose=1):
             scalars = list()
             vectors = list()
             images = list()
+
             for feat in sc_features:
                 scalars.append(ds[feat][event_index])
             for feat in tr_features:
