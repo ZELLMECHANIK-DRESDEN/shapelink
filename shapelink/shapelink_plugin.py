@@ -41,7 +41,7 @@ class ShapeLinkPlugin(abc.ABC):
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0
-        self.image_shape = np.array([])
+        self.image_shape = None
         self.image_shape_len = 2
         self.registered_data_format = EventData()
         self.registered = False
@@ -78,7 +78,7 @@ class ShapeLinkPlugin(abc.ABC):
             self.registered_data_format.scalars = rcv_stream.readQStringList()
             self.registered_data_format.traces = rcv_stream.readQStringList()
             self.registered_data_format.images = rcv_stream.readQStringList()
-            self.image_shape = qstream_read_array(rcv_stream, np.uint8)
+            self.image_shape = qstream_read_array(rcv_stream, np.uint16)
             assert self.image_shape_len == len(self.image_shape)
 
             send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
@@ -115,8 +115,8 @@ class ShapeLinkPlugin(abc.ABC):
             # read images piece by piece
             for i in range(n_images):
                 e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                for ii, im in enumerate(e.images):
-                    e.images[ii] = np.reshape(e.images[ii], self.image_shape)
+                for j, im in enumerate(e.images):
+                    e.images[j] = np.reshape(e.images[j], self.image_shape)
 
             # pass event object to user-defined method
             ret = self.handle_event(e)

@@ -197,13 +197,13 @@ def start_simulator(path, features=None, verbose=1):
         else:
             tr_features = []
 
-        im_shape = np.array(ds["image"][0].shape, dtype=np.uint8)
+        image_shape = np.array(ds["image"][0].shape, dtype=np.uint16)
 
         s.register_parameters(
             scalar_hdf5_names=sc_features,
             vector_hdf5_names=tr_features,
             image_hdf5_names=im_features,
-            image_shape=im_shape,
+            image_shape=image_shape,
             settings_names=[],
             settings_values=[],
         )
