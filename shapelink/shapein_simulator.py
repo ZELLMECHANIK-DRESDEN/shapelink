@@ -129,8 +129,11 @@ class ShapeInSimulator:
             qstream_write_array(msg_stream, e)
 
         msg_stream.writeUInt32(self.image_len)
-        for e in image_values:
-            # assert e.dtype == np.uint8, "image data is uint8"
+        for i, e in enumerate(image_values):
+            if i % 2:
+                assert e.dtype == bool, "'mask' data is bool"
+            else:
+                assert e.dtype == np.uint8, "'image' data is uint8"
             qstream_write_array(msg_stream, e.flatten())
 
         try:
@@ -224,7 +227,7 @@ def start_simulator(path, features=None, verbose=1):
                 tr = np.array(ds['trace'][feat][event_index], dtype=np.int16)
                 vectors.append(tr)
             for feat in im_features:
-                if ds[feat][event_index].dtype == 'bool':
+                if ds[feat][event_index].dtype == bool:
                     im = np.array(ds[feat][event_index], dtype=bool)
                 else:
                     im = np.array(ds[feat][event_index], dtype=np.uint8)

@@ -112,7 +112,7 @@ class ShapeLinkPlugin(abc.ABC):
 
             n_images = rcv_stream.readUInt32()
             assert n_images == len(self.registered_data_format.images)
-            # read images piece by piece
+            # read images piece by piece, checking for binary mask
             for i in range(n_images):
                 if i % 2:
                     e.images.append(qstream_read_array(rcv_stream, bool))
