@@ -114,7 +114,10 @@ class ShapeLinkPlugin(abc.ABC):
             assert n_images == len(self.registered_data_format.images)
             # read images piece by piece
             for i in range(n_images):
-                e.images.append(qstream_read_array(rcv_stream, np.uint8))
+                if i % 2:
+                    e.images.append(qstream_read_array(rcv_stream, bool))
+                else:
+                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
                 for j, im in enumerate(e.images):
                     e.images[j] = np.reshape(e.images[j], self.image_shape)
 
