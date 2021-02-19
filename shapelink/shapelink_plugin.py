@@ -124,14 +124,6 @@ class ShapeLinkPlugin(abc.ABC):
                     e.images.append(qstream_read_array(rcv_stream, np.uint8))
                 for i, im in enumerate(e.images):
                     e.images[i] = np.reshape(e.images[i], self.image_shape)
-            #
-            # for i in range(n_images):
-            #     if i % 2:
-            #         e.images.append(qstream_read_array(rcv_stream, bool))
-            #     else:
-            #         e.images.append(qstream_read_array(rcv_stream, np.uint8))
-            #     for j, im in enumerate(e.images):
-            #         e.images[j] = np.reshape(e.images[j], self.image_shape)
 
             # pass event object to user-defined method
             ret = self.handle_event(e)
