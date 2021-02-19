@@ -30,6 +30,7 @@ class ShapeInSimulator:
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0
+        self.image_names = []
         self.image_shape_len = 2
         self.registered = False
         self.response = list()
@@ -61,6 +62,7 @@ class ShapeInSimulator:
         self.scalar_len = len(scalar_hdf5_names)
         self.vector_len = len(vector_hdf5_names)
         self.image_len = len(image_hdf5_names)
+        self.image_names = image_hdf5_names
         self.image_shape_len = len(image_shape)
         self.response.clear()
 
@@ -129,9 +131,10 @@ class ShapeInSimulator:
             qstream_write_array(msg_stream, e)
 
         msg_stream.writeUInt32(self.image_len)
-        for i, e in enumerate(image_values):
-            if i % 2:
-                assert e.dtype == bool, "'mask' data is bool"
+
+        for (im_name, e) in zip(self.image_names, image_values):
+            if im_name == "mask":
+                assert e.dtype == np.bool_, "'mask' data is bool"
             else:
                 assert e.dtype == np.uint8, "'image' data is uint8"
             qstream_write_array(msg_stream, e.flatten())
