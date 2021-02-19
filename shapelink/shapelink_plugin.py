@@ -79,6 +79,10 @@ class ShapeLinkPlugin(abc.ABC):
             self.registered_data_format.traces = rcv_stream.readQStringList()
             self.registered_data_format.images = rcv_stream.readQStringList()
             self.image_shape = qstream_read_array(rcv_stream, np.uint16)
+
+            self.scalar_len = len(self.registered_data_format.scalars)
+            self.vector_len = len(self.registered_data_format.traces)
+            self.image_len = len(self.registered_data_format.images)
             assert self.image_shape_len == len(self.image_shape)
 
             send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
@@ -102,21 +106,24 @@ class ShapeLinkPlugin(abc.ABC):
             e.id = r
 
             e.scalars = qstream_read_array(rcv_stream, np.float64)
-            assert len(e.scalars) == len(self.registered_data_format.scalars)
+            assert len(e.scalars) == self.scalar_len
 
             n_traces = rcv_stream.readUInt32()
-            assert n_traces == len(self.registered_data_format.traces)
+            assert n_traces == self.vector_len
             # read traces piece by piece
             for i in range(n_traces):
                 e.traces.append(qstream_read_array(rcv_stream, np.int16))
 
             n_images = rcv_stream.readUInt32()
-            assert n_images == len(self.registered_data_format.images)
-            # read images piece by piece
-            for i in range(n_images):
-                e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                for j, im in enumerate(e.images):
-                    e.images[j] = np.reshape(e.images[j], self.image_shape)
+            assert n_images == self.image_len
+            # read images piece by piece, checking for binary mask
+            for im_name in self.registered_data_format.images:
+                if im_name == "mask":
+                    e.images.append(qstream_read_array(rcv_stream, np.bool_))
+                else:
+                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
+                for i, im in enumerate(e.images):
+                    e.images[i] = np.reshape(e.images[i], self.image_shape)
 
             # pass event object to user-defined method
             ret = self.handle_event(e)

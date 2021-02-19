@@ -30,6 +30,7 @@ class ShapeInSimulator:
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0
+        self.image_names = []
         self.image_shape_len = 2
         self.registered = False
         self.response = list()
@@ -61,6 +62,7 @@ class ShapeInSimulator:
         self.scalar_len = len(scalar_hdf5_names)
         self.vector_len = len(vector_hdf5_names)
         self.image_len = len(image_hdf5_names)
+        self.image_names = image_hdf5_names
         self.image_shape_len = len(image_shape)
         self.response.clear()
 
@@ -129,8 +131,12 @@ class ShapeInSimulator:
             qstream_write_array(msg_stream, e)
 
         msg_stream.writeUInt32(self.image_len)
-        for e in image_values:
-            assert e.dtype == np.uint8, "image data is uint8"
+
+        for (im_name, e) in zip(self.image_names, image_values):
+            if im_name == "mask":
+                assert e.dtype == np.bool_, "'mask' data is bool"
+            else:
+                assert e.dtype == np.uint8, "'image' data is uint8"
             qstream_write_array(msg_stream, e.flatten())
 
         try:
@@ -224,7 +230,10 @@ def start_simulator(path, features=None, verbose=1):
                 tr = np.array(ds['trace'][feat][event_index], dtype=np.int16)
                 vectors.append(tr)
             for feat in im_features:
-                im = np.array(ds[feat][event_index], dtype=np.uint8)
+                if ds[feat][event_index].dtype == bool:
+                    im = np.array(ds[feat][event_index], dtype=bool)
+                else:
+                    im = np.array(ds[feat][event_index], dtype=np.uint8)
                 images.append(im)
 
             s.send_event(event_index,
