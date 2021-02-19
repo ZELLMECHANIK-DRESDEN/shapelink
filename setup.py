@@ -6,7 +6,7 @@ import sys
 
 
 author = u"Paul Müller"
-authors = ["Philipp Rosendahl", author]
+authors = ["Philipp Rosendahl", author, "Eoghan O'Connell"]
 name = 'shapelink'
 description = 'Inter-process communication with Shape-In'
 year = "2021"
