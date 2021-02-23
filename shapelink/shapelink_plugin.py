@@ -83,7 +83,7 @@ class ShapeLinkPlugin(abc.ABC):
             send_stream.writeQStringList(feats)
             self.after_features_request()
 
-        if r == msg_def.MSG_ID_REGISTER:
+        elif r == msg_def.MSG_ID_REGISTER:
             # register
             self.run_register_message(rcv_stream, send_stream)
             self.after_register()
@@ -101,7 +101,7 @@ class ShapeLinkPlugin(abc.ABC):
 
         else:
             # unknown message
-            raise ValueError("Received unknown message header!")
+            raise ValueError("Received unknown message header: {}".format(r))
         self.socket.send(send_data)
 
     def run_features_request_message(self, send_stream):

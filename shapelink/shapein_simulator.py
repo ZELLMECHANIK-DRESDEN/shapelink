@@ -223,18 +223,20 @@ def start_simulator(path, features=None, verbose=1):
         # check for user plugin-defined features
         feats = s.send_request_for_features()
         if feats is not None:
-            im_features, sc_features, tr_features = feats
+            sc_features, tr_features, im_features = feats
         else:
-            im_features = sorted({"image", "mask"}
-                                 & set(ds.features)
-                                 & set(features))
             sc_features = sorted(set(ds.features_scalar)
                                  & set(ds.features)
                                  & set(features))
+
             if "trace" in ds and "trace" in features:
                 tr_features = sorted(ds['trace'].keys())
             else:
                 tr_features = []
+
+            im_features = sorted({"image", "mask"}
+                                 & set(ds.features)
+                                 & set(features))
 
         image_shape = np.array(ds["image"][0].shape, dtype=np.uint16)
 
