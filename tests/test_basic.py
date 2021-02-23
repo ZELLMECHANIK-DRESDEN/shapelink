@@ -58,6 +58,7 @@ def test_run_plugin_with_user_defined_features():
     for ii in range(49):
         p.handle_messages()
 
+
 if __name__ == "__main__":
     # Run all tests
     loc = locals()

@@ -46,10 +46,6 @@ class ShapeLinkPlugin(abc.ABC):
         self.hdf5_names = EventData()
         self.registered = False
 
-    def after_features_request(self):
-        """Called after the request for features"""
-        pass
-
     def after_register(self):
         """Called after registration with Shape-In is complete"""
         pass
@@ -81,7 +77,6 @@ class ShapeLinkPlugin(abc.ABC):
             # Allow plugin to request features
             feats = self.run_features_request_message(send_stream)
             send_stream.writeQStringList(feats)
-            self.after_features_request()
 
         elif r == msg_def.MSG_ID_REGISTER:
             # register

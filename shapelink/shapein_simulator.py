@@ -55,6 +55,7 @@ class ShapeInSimulator:
 
         rcv_stream = QtCore.QDataStream(rcv, QtCore.QIODevice.ReadOnly)
         feats = rcv_stream.readQStringList()
+        assert type(feats) == list, "feats is a list"
         if len(feats) == 0:
             if self.verbose:
                 print("Feature Request List Empty")
@@ -101,7 +102,6 @@ class ShapeInSimulator:
         msg_stream.writeQStringList(scalar_hdf5_names)
         msg_stream.writeQStringList(vector_hdf5_names)
         msg_stream.writeQStringList(image_hdf5_names)
-        # todo: should also only feed in image shape if image or mask requested
         qstream_write_array(msg_stream, image_shape)
 
         # send settings
