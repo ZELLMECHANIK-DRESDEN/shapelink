@@ -75,63 +75,78 @@ class ShapeLinkPlugin(abc.ABC):
 
         if r == msg_def.MSG_ID_REGISTER:
             # register
-            self.registered_data_format.scalars = rcv_stream.readQStringList()
-            self.registered_data_format.traces = rcv_stream.readQStringList()
-            self.registered_data_format.images = rcv_stream.readQStringList()
-            self.image_shape = qstream_read_array(rcv_stream, np.uint16)
-
-            self.scalar_len = len(self.registered_data_format.scalars)
-            self.vector_len = len(self.registered_data_format.traces)
-            self.image_len = len(self.registered_data_format.images)
-            assert self.image_shape_len == len(self.image_shape)
-
-            send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
-            if self.verbose:
-                print(" Registered data container formats:")
-                print("  scalars: ", self.registered_data_format.scalars)
-                print("  traces:  ", self.registered_data_format.traces)
-                print("  images:  ", self.registered_data_format.images)
-                print("  image_shape:  ", self.image_shape)
+            self.run_register_message(rcv_stream, send_stream)
             self.after_register()
+
         elif r == msg_def.MSG_ID_EOT:
-            # EOT message
-            send_stream.writeInt64(msg_def.MSG_ID_EOT_ACK)
+            # End of Transmission (EOT) message
+            self.run_EOT_message(send_stream)
             self.after_transmission()
+
         elif r >= 0:
-            # data package with id r
-            # check if id was received already
-            # unpack data
-            e = EventData()
-
-            e.id = r
-
-            e.scalars = qstream_read_array(rcv_stream, np.float64)
-            assert len(e.scalars) == self.scalar_len
-
-            n_traces = rcv_stream.readUInt32()
-            assert n_traces == self.vector_len
-            # read traces piece by piece
-            for i in range(n_traces):
-                e.traces.append(qstream_read_array(rcv_stream, np.int16))
-
-            n_images = rcv_stream.readUInt32()
-            assert n_images == self.image_len
-            # read images piece by piece, checking for binary mask
-            for im_name in self.registered_data_format.images:
-                if im_name == "mask":
-                    e.images.append(qstream_read_array(rcv_stream, np.bool_))
-                else:
-                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                for i, im in enumerate(e.images):
-                    e.images[i] = np.reshape(e.images[i], self.image_shape)
-
+            e = self.run_event_message(r, rcv_stream)
             # pass event object to user-defined method
             ret = self.handle_event(e)
             send_stream.writeBool(ret)
+
         else:
             # unknown message
             raise ValueError("Received unknown message header!")
         self.socket.send(send_data)
+
+    def run_register_message(self, rcv_stream, send_stream):
+        # register
+        self.registered_data_format.scalars = rcv_stream.readQStringList()
+        self.registered_data_format.traces = rcv_stream.readQStringList()
+        self.registered_data_format.images = rcv_stream.readQStringList()
+        self.image_shape = qstream_read_array(rcv_stream, np.uint16)
+
+        self.scalar_len = len(self.registered_data_format.scalars)
+        self.vector_len = len(self.registered_data_format.traces)
+        self.image_len = len(self.registered_data_format.images)
+        assert self.image_shape_len == len(self.image_shape)
+
+        send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
+        if self.verbose:
+            print(" Registered data container formats:")
+            print("  scalars: ", self.registered_data_format.scalars)
+            print("  traces:  ", self.registered_data_format.traces)
+            print("  images:  ", self.registered_data_format.images)
+            print("  image_shape:  ", self.image_shape)
+
+    def run_event_message(self, r, rcv_stream):
+        # data package with id r
+        # check if id was received already
+        # unpack data
+        e = EventData()
+
+        e.id = r
+
+        e.scalars = qstream_read_array(rcv_stream, np.float64)
+        assert len(e.scalars) == self.scalar_len
+
+        n_traces = rcv_stream.readUInt32()
+        assert n_traces == self.vector_len
+        # read traces piece by piece
+        for i in range(n_traces):
+            e.traces.append(qstream_read_array(rcv_stream, np.int16))
+
+        n_images = rcv_stream.readUInt32()
+        assert n_images == self.image_len
+        # read images piece by piece, checking for binary mask
+        for im_name in self.registered_data_format.images:
+            if im_name == "mask":
+                e.images.append(qstream_read_array(rcv_stream, np.bool_))
+            else:
+                e.images.append(qstream_read_array(rcv_stream, np.uint8))
+            for i, im in enumerate(e.images):
+                e.images[i] = np.reshape(e.images[i], self.image_shape)
+        return e
+
+    def run_EOT_message(self, send_stream):
+        # End of Transmission (EOT) message
+        send_stream.writeInt64(msg_def.MSG_ID_EOT_ACK)
+
 
     @abc.abstractmethod
     def handle_event(self, event_data: EventData) -> bool:
