@@ -35,6 +35,32 @@ class ShapeInSimulator:
         self.registered = False
         self.response = list()
 
+    def send_request_for_features(self):
+        # prepare message in byte stream
+        msg = QtCore.QByteArray()
+        msg_stream = QtCore.QDataStream(msg, QtCore.QIODevice.WriteOnly)
+        msg_stream.writeInt64(msg_def.MSG_ID_FEATURE_REQ)
+
+        try:
+            if self.verbose:
+                print("Send request for features message")
+            # send the message over the socket
+            self.socket.send(msg)
+            # get ACK before return
+            rcv = QtCore.QByteArray(self.socket.recv())
+        except zmq.error.ZMQError:
+            if self.verbose:
+                print("ZMQ Error")
+            return
+
+        rcv_stream = QtCore.QDataStream(rcv, QtCore.QIODevice.ReadOnly)
+        feats = rcv_stream.readQStringList()
+        if len(feats) == 0:
+            if self.verbose:
+                print("Feature Request List Empty")
+            feats = None
+        return feats
+
     def register_parameters(self,
                             scalar_hdf5_names=None,
                             vector_hdf5_names=None,
@@ -75,6 +101,7 @@ class ShapeInSimulator:
         msg_stream.writeQStringList(scalar_hdf5_names)
         msg_stream.writeQStringList(vector_hdf5_names)
         msg_stream.writeQStringList(image_hdf5_names)
+        # todo: should also only feed in image shape if image or mask requested
         qstream_write_array(msg_stream, image_shape)
 
         # send settings
@@ -192,16 +219,22 @@ def start_simulator(path, features=None, verbose=1):
         if features is None:
             features = ds.features_innate
         s = ShapeInSimulator()
-        im_features = sorted({"image", "mask"}
-                             & set(ds.features)
-                             & set(features))
-        sc_features = sorted(set(ds.features_scalar)
-                             & set(ds.features)
-                             & set(features))
-        if "trace" in ds and "trace" in features:
-            tr_features = sorted(ds['trace'].keys())
+
+        # check for user plugin-defined features
+        feats = s.send_request_for_features()
+        if feats is not None:
+            im_features, sc_features, tr_features = feats
         else:
-            tr_features = []
+            im_features = sorted({"image", "mask"}
+                                 & set(ds.features)
+                                 & set(features))
+            sc_features = sorted(set(ds.features_scalar)
+                                 & set(ds.features)
+                                 & set(features))
+            if "trace" in ds and "trace" in features:
+                tr_features = sorted(ds['trace'].keys())
+            else:
+                tr_features = []
 
         image_shape = np.array(ds["image"][0].shape, dtype=np.uint16)
 

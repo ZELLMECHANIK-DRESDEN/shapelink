@@ -46,6 +46,10 @@ class ShapeLinkPlugin(abc.ABC):
         self.hdf5_names = EventData()
         self.registered = False
 
+    def after_features_request(self):
+        """Called after the request for features"""
+        pass
+
     def after_register(self):
         """Called after registration with Shape-In is complete"""
         pass
@@ -73,6 +77,12 @@ class ShapeLinkPlugin(abc.ABC):
         send_data = QtCore.QByteArray()
         send_stream = QtCore.QDataStream(send_data, QtCore.QIODevice.WriteOnly)
 
+        if r == msg_def.MSG_ID_FEATURE_REQ:
+            # Allow plugin to request features
+            feats = self.run_features_request_message(send_stream)
+            send_stream.writeQStringList(feats)
+            self.after_features_request()
+
         if r == msg_def.MSG_ID_REGISTER:
             # register
             self.run_register_message(rcv_stream, send_stream)
@@ -93,6 +103,18 @@ class ShapeLinkPlugin(abc.ABC):
             # unknown message
             raise ValueError("Received unknown message header!")
         self.socket.send(send_data)
+
+    def run_features_request_message(self, send_stream):
+        """Called before registration. The user can specify features for
+        Shape-In to send. This limits the data being transferred.
+        This can be useful for plugins that require only specific features.
+
+        feats is a list of three lists. The lists are sc, tr, and im
+        """
+
+        # user chooses what features they want in their plugin using:
+        feats = self.choose_features()
+        return feats
 
     def run_register_message(self, rcv_stream, send_stream):
         # register
@@ -147,8 +169,12 @@ class ShapeLinkPlugin(abc.ABC):
         # End of Transmission (EOT) message
         send_stream.writeInt64(msg_def.MSG_ID_EOT_ACK)
 
-
     @abc.abstractmethod
     def handle_event(self, event_data: EventData) -> bool:
         """Abstract method to be overridden by plugins implementations"""
         return False
+
+    @abc.abstractmethod
+    def choose_features(self):
+        """Abstract method to be overridden by plugins implementations"""
+        return list()
