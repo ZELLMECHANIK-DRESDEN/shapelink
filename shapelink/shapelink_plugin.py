@@ -75,8 +75,7 @@ class ShapeLinkPlugin(abc.ABC):
 
         if r == msg_def.MSG_ID_FEATURE_REQ:
             # Allow plugin to request features
-            feats = self.run_features_request_message(send_stream)
-            send_stream.writeQStringList(feats)
+            self.run_features_request_message(send_stream)
 
         elif r == msg_def.MSG_ID_REGISTER:
             # register
@@ -106,10 +105,12 @@ class ShapeLinkPlugin(abc.ABC):
 
         feats is a list of three lists. The lists are sc, tr, and im
         """
-
-        # user chooses what features they want in their plugin using:
         feats = self.choose_features()
-        return feats
+        assert isinstance(feats, list), "feats is a list"
+        assert len(feats) == 3
+        # feats must be sent one by one, list of lists doesn't work
+        for feat in feats:
+            send_stream.writeQStringList(feat)
 
     def run_register_message(self, rcv_stream, send_stream):
         # register

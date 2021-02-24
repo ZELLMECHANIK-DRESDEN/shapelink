@@ -54,9 +54,10 @@ class ShapeInSimulator:
             return
 
         rcv_stream = QtCore.QDataStream(rcv, QtCore.QIODevice.ReadOnly)
-        feats = rcv_stream.readQStringList()
-        assert type(feats) == list, "feats is a list"
-        if len(feats) == 0:
+        feats = []
+        for i in range(3):
+            feats.append(rcv_stream.readQStringList())
+        if len([i for sublist in feats for i in sublist]) == 0:
             if self.verbose:
                 print("Feature Request List Empty")
             feats = None
