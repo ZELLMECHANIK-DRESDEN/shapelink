@@ -173,4 +173,4 @@ class ShapeLinkPlugin(abc.ABC):
     @abc.abstractmethod
     def choose_features(self):
         """Abstract method to be overridden by plugins implementations"""
-        return list()
+        return list(([], [], []))

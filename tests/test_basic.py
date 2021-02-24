@@ -10,7 +10,7 @@ data_dir = pathlib.Path(__file__).parent / "data"
 
 class ExampleShapeLinkPlugin(ShapeLinkPlugin):
     def choose_features(self):
-        return list()
+        return list(([], [], []))
 
     def handle_event(self, event_data: EventData) -> bool:
         return False
@@ -33,14 +33,25 @@ def test_run_plugin_with_simulator():
 
 
 class ChooseFeaturesShapeLinkPlugin(ShapeLinkPlugin):
+    """Checks if only the chosen features are transferred"""
+    def __init__(self, *args, **kwargs):
+        super(ChooseFeaturesShapeLinkPlugin, self).__init__(*args, **kwargs)
+        self.window_size = 100
+        self.scalar_data = {}
+
     def choose_features(self):
         sc_features = ["deform", "circ"]
-        tr_features = ["fl2_pos"]
+        tr_features = []
         im_features = ["image"]
         user_feats = list((sc_features, tr_features, im_features))
         return user_feats
 
     def handle_event(self, event_data: EventData) -> bool:
+        """Check that the chosen features were transferred"""
+        assert self.reg_features.scalars == ["deform", "circ"]
+        assert self.reg_features.traces == []
+        assert self.reg_features.images == ["image"]
+
         return False
 
 
