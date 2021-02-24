@@ -43,7 +43,7 @@ class ShapeLinkPlugin(abc.ABC):
         self.image_len = 0
         self.image_shape = None
         self.image_shape_len = 2
-        self.hdf5_names = EventData()
+        self.reg_features = EventData()
         self.registered = False
 
     def after_register(self):
@@ -113,22 +113,22 @@ class ShapeLinkPlugin(abc.ABC):
 
     def run_register_message(self, rcv_stream, send_stream):
         # register
-        self.hdf5_names.scalars = rcv_stream.readQStringList()
-        self.hdf5_names.traces = rcv_stream.readQStringList()
-        self.hdf5_names.images = rcv_stream.readQStringList()
+        self.reg_features.scalars = rcv_stream.readQStringList()
+        self.reg_features.traces = rcv_stream.readQStringList()
+        self.reg_features.images = rcv_stream.readQStringList()
         self.image_shape = qstream_read_array(rcv_stream, np.uint16)
 
-        self.scalar_len = len(self.hdf5_names.scalars)
-        self.vector_len = len(self.hdf5_names.traces)
-        self.image_len = len(self.hdf5_names.images)
+        self.scalar_len = len(self.reg_features.scalars)
+        self.vector_len = len(self.reg_features.traces)
+        self.image_len = len(self.reg_features.images)
         assert self.image_shape_len == len(self.image_shape)
 
         send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
         if self.verbose:
             print(" Registered data container formats:")
-            print("  scalars: ", self.hdf5_names.scalars)
-            print("  traces:  ", self.hdf5_names.traces)
-            print("  images:  ", self.hdf5_names.images)
+            print("  scalars: ", self.reg_features.scalars)
+            print("  traces:  ", self.reg_features.traces)
+            print("  images:  ", self.reg_features.images)
             print("  image_shape:  ", self.image_shape)
 
     def run_event_message(self, r, rcv_stream):
@@ -151,7 +151,7 @@ class ShapeLinkPlugin(abc.ABC):
         n_images = rcv_stream.readUInt32()
         assert n_images == self.image_len
         # read images piece by piece, checking for binary mask
-        for im_name in self.hdf5_names.images:
+        for im_name in self.reg_features.images:
             if im_name == "mask":
                 e.images.append(qstream_read_array(rcv_stream, np.bool_))
             else:

@@ -63,9 +63,9 @@ class ShapeInSimulator:
         return feats
 
     def register_parameters(self,
-                            scalar_hdf5_names=None,
-                            vector_hdf5_names=None,
-                            image_hdf5_names=None,
+                            scalar_reg_features=None,
+                            vector_reg_features=None,
+                            image_reg_features=None,
                             image_shape=None,
                             settings_names=None,
                             settings_values=None
@@ -75,21 +75,21 @@ class ShapeInSimulator:
             settings_values = []
         if settings_names is None:
             settings_names = []
-        if image_hdf5_names is None:
-            image_hdf5_names = []
+        if image_reg_features is None:
+            image_reg_features = []
         if image_shape is None:
             image_shape = []
-        if vector_hdf5_names is None:
-            vector_hdf5_names = []
-        if scalar_hdf5_names is None:
-            scalar_hdf5_names = []
+        if vector_reg_features is None:
+            vector_reg_features = []
+        if scalar_reg_features is None:
+            scalar_reg_features = []
         assert len(settings_values) == len(
             settings_names), "Mismatch setting names and values"
 
-        self.scalar_len = len(scalar_hdf5_names)
-        self.vector_len = len(vector_hdf5_names)
-        self.image_len = len(image_hdf5_names)
-        self.image_names = image_hdf5_names
+        self.scalar_len = len(scalar_reg_features)
+        self.vector_len = len(vector_reg_features)
+        self.image_len = len(image_reg_features)
+        self.image_names = image_reg_features
         self.image_shape_len = len(image_shape)
         self.response.clear()
 
@@ -99,9 +99,9 @@ class ShapeInSimulator:
         msg_stream.writeInt64(msg_def.MSG_ID_REGISTER)
 
         # send parameters
-        msg_stream.writeQStringList(scalar_hdf5_names)
-        msg_stream.writeQStringList(vector_hdf5_names)
-        msg_stream.writeQStringList(image_hdf5_names)
+        msg_stream.writeQStringList(scalar_reg_features)
+        msg_stream.writeQStringList(vector_reg_features)
+        msg_stream.writeQStringList(image_reg_features)
         qstream_write_array(msg_stream, image_shape)
 
         # send settings
@@ -241,9 +241,9 @@ def start_simulator(path, features=None, verbose=1):
         image_shape = np.array(ds["image"][0].shape, dtype=np.uint16)
 
         s.register_parameters(
-            scalar_hdf5_names=sc_features,
-            vector_hdf5_names=tr_features,
-            image_hdf5_names=im_features,
+            scalar_reg_features=sc_features,
+            vector_reg_features=tr_features,
+            image_reg_features=im_features,
             image_shape=image_shape,
             settings_names=[],
             settings_values=[],
