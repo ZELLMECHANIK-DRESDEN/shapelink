@@ -103,7 +103,7 @@ class ShapeLinkPlugin(abc.ABC):
         Shape-In to send. This limits the data being transferred.
         This can be useful for plugins that require only specific features.
 
-        feats is a list of three lists. The lists are sc, tr, and im
+        feats is a list of three lists. The sublists are sc, tr, and im
         """
         feats = self.choose_features()
         assert isinstance(feats, list), "feats is a list"
