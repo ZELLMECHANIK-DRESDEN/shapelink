@@ -32,7 +32,7 @@ jobs:
         pip freeze
     - name: Test with pytest
       run: |
-        coverage run --source=shapelink pytest
+        coverage run -m --source=shapelink pytest
     - name: Lint with flake8
       run: |
         flake8 .
