@@ -212,14 +212,15 @@ class ShapeInSimulator:
                 print("EOT success")
 
 
-def start_simulator(path, features=None, verbose=1):
+def start_simulator(path, features=None, verbose=1,
+                    destination="tcp://localhost:6666"):
     """Run a Shape-In simulator using data from an RT-DC dataset"""
     with dclab.new_dataset(path) as ds:
         if verbose:
             print("Opened dataset", ds.identifier, ds.title)
         if features is None:
             features = ds.features_innate
-        s = ShapeInSimulator()
+        s = ShapeInSimulator(destination=destination)
 
         # check for user plugin-defined features
         feats = s.send_request_for_features()
