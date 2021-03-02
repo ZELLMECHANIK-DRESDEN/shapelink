@@ -33,7 +33,7 @@ def test_run_plugin_with_user_defined_features():
     # create new thread for simulator
     th = threading.Thread(target=shapein_simulator.start_simulator,
                           args=(str(data_dir / "calibration_beads_47.rtdc"),
-                                None, 0, "tcp://localhost:6667")
+                                None, "tcp://localhost:6667", 0)
                           )
     # setup plugin
     p = ChooseFeaturesShapeLinkPlugin(bind_to='tcp://*:6667')

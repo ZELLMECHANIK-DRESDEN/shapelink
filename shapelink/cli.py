@@ -13,13 +13,20 @@ def main():
     pass
 
 
+features_help_text = (
+        "Comma-separated list of features to send by the "
+        + "Shape-In simulator; Defaults to all innate features. "
+        + "A list of valid feature names can be found in "
+        + "the dclab docs (Advanced Usage -> Notation). "
+        + "The list of features will be ignored if any features "
+        + "are specified within the `choose_features` method of a "
+        + "plugin implementation.")
+
+
 @click.command()
 @click.argument("path")
 @click.option("--features", "-f",
-              help="Comma-separated list of features to send by the "
-                   + "Shape-In simulator; Defaults to all innate features. "
-                   + "A list of valid feature names can be found in "
-                   + "the dclab docs (Advanced Usage -> Notation).")
+              help=features_help_text)
 def run_simulator(path, features=None):
     """Run the Shape-In simulator using data from an RT-DC dataset file
 
@@ -38,10 +45,7 @@ def run_simulator(path, features=None):
               help="Run the Shape-In simulator in the background "
                    + "using the RT-DC dataset specified (used for testing).")
 @click.option("--features", "-f",
-              help="Comma-separated list of features to send by the "
-                   + "Shape-In simulator; Defaults to all innate features. "
-                   + "A list of valid feature names can be found in "
-                   + "the dclab docs (Advanced Usage -> Notation).")
+              help=features_help_text)
 def run_plugin(path, with_simulator=None, features=None):
     """Run a Shape-Link plugin file
 
@@ -58,7 +62,8 @@ def run_plugin(path, with_simulator=None, features=None):
         if features is not None:
             features = [f.strip() for f in features.split(",")]
         th = threading.Thread(target=shapein_simulator.start_simulator,
-                              args=(with_simulator, features, 0))
+                              args=(with_simulator, features,
+                                    "tcp://localhost:6666", 0))
         th.start()
     else:
         if features is not None:

@@ -25,7 +25,7 @@ class RollingMeansPlugin(ShapeLinkPlugin):
         print("\n End of transmission\n")
 
     def choose_features(self):
-        return list()
+        return list(([], [], []))
 
     def handle_event(self, event_data):
         """Handle a new event"""

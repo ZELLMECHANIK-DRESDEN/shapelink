@@ -21,7 +21,7 @@ def test_run_plugin_with_simulator():
     th = threading.Thread(target=shapein_simulator.start_simulator,
                           args=(str(data_dir / "calibration_beads_47.rtdc"),
                                 ["deform", "area_um"],
-                                0)
+                                "tcp://localhost:6666", 0)
                           )
     # setup plugin
     p = ExampleShapeLinkPlugin()
