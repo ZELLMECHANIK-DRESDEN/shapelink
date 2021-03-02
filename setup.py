@@ -45,7 +45,6 @@ setup(
     },
     setup_requires=['pytest-runner'],
     python_requires=">=3.6",
-    tests_require=["pytest"],
     include_package_data=True,
     keywords=["fcs", "flow cytometry", "flow cytometry standard"],
     classifiers=['Operating System :: OS Independent',
