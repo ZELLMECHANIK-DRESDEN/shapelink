@@ -111,6 +111,7 @@ class ShapeLinkPlugin(abc.ABC):
         # feats must be sent one by one, list of lists doesn't work
         for feat in feats:
             send_stream.writeQStringList(feat)
+        send_stream.writeInt64(msg_def.MSG_ID_FEATURE_REQ_ACK)
 
     def run_register_message(self, rcv_stream, send_stream):
         # register
@@ -172,5 +173,14 @@ class ShapeLinkPlugin(abc.ABC):
 
     @abc.abstractmethod
     def choose_features(self):
-        """Abstract method to be overridden by plugins implementations"""
+        """Abstract method to be overridden by plugins implementations.
+
+        Notes
+        -----
+        When features are chosen by a plugin implementation, only those chosen
+        features will be transferred between ShapeIn and the plugin. This has
+        the effect of ignoring any features specified by the user in the
+        --features (-f) option of the command line interface.
+
+        """
         return list(([], [], []))

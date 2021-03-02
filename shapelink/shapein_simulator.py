@@ -57,6 +57,14 @@ class ShapeInSimulator:
         feats = []
         for i in range(3):
             feats.append(rcv_stream.readQStringList())
+
+        r = rcv_stream.readInt64()
+        if r == msg_def.MSG_ID_FEATURE_REQ_ACK:
+            if self.verbose:
+                print("Feature Request ACK")
+        else:
+            print("Feature Request failed!")
+
         if len([i for sublist in feats for i in sublist]) == 0:
             if self.verbose:
                 print("Feature Request List Empty")
@@ -223,7 +231,7 @@ def start_simulator(path, features=None, destination="tcp://localhost:6666",
     features : list, default None
         A list of RT-DC features e.g., ["image", "circ", "deform"]
     destination : str
-        The socket to which the ShapeInSimulator will connect. By defaul it is
+        The socket to which the ShapeInSimulator will connect. By default it is
         set to "tcp://localhost:6666". These are the protocol, host and port
         in the form "protocol://host:port".
     verbose : Bool, default 1
