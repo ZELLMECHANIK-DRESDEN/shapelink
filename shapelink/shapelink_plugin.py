@@ -141,25 +141,29 @@ class ShapeLinkPlugin(abc.ABC):
 
         e.id = r
 
-        e.scalars = qstream_read_array(rcv_stream, np.float64)
-        assert len(e.scalars) == self.scalar_len
+        if self.scalar_len > 0:
+            e.scalars = qstream_read_array(rcv_stream, np.float64)
+            assert len(e.scalars) == self.scalar_len
 
-        n_traces = rcv_stream.readUInt32()
-        assert n_traces == self.vector_len
-        # read traces piece by piece
-        for i in range(n_traces):
-            e.traces.append(qstream_read_array(rcv_stream, np.int16))
+        if self.vector_len > 0:
+            n_traces = rcv_stream.readUInt32()
+            assert n_traces == self.vector_len
+            # read traces piece by piece
+            for i in range(n_traces):
+                e.traces.append(qstream_read_array(rcv_stream, np.int16))
 
-        n_images = rcv_stream.readUInt32()
-        assert n_images == self.image_len
-        # read images piece by piece, checking for binary mask
-        for im_name in self.reg_features.images:
-            if im_name == "mask":
-                e.images.append(qstream_read_array(rcv_stream, np.bool_))
-            else:
-                e.images.append(qstream_read_array(rcv_stream, np.uint8))
-            for i, im in enumerate(e.images):
-                e.images[i] = np.reshape(e.images[i], self.image_shape)
+        if self.image_len > 0:
+            n_images = rcv_stream.readUInt32()
+            assert n_images == self.image_len
+            # read images piece by piece, checking for binary mask
+            for im_name in self.reg_features.images:
+                if im_name == "mask":
+                    e.images.append(qstream_read_array(rcv_stream, np.bool_))
+                else:
+                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
+                for i, im in enumerate(e.images):
+                    e.images[i] = np.reshape(e.images[i], self.image_shape)
+
         return e
 
     def run_EOT_message(self, send_stream):

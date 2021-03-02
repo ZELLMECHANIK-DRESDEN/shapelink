@@ -156,24 +156,25 @@ class ShapeInSimulator:
         assert len(scalar_values) == self.scalar_len
         assert len(vector_values) == self.vector_len
         assert len(image_values) == self.image_len
-
         assert np.issubdtype(scalar_values.dtype, np.floating)
 
-        qstream_write_array(msg_stream, scalar_values)
+        if self.scalar_len > 0:
+            qstream_write_array(msg_stream, scalar_values)
 
-        msg_stream.writeUInt32(self.vector_len)
-        for e in vector_values:
-            assert e.dtype == np.int16, "fluorescence data is int16"
-            qstream_write_array(msg_stream, e)
+        if self.vector_len > 0:
+            msg_stream.writeUInt32(self.vector_len)
+            for e in vector_values:
+                assert e.dtype == np.int16, "fluorescence data is int16"
+                qstream_write_array(msg_stream, e)
 
-        msg_stream.writeUInt32(self.image_len)
-
-        for (im_name, e) in zip(self.image_names, image_values):
-            if im_name == "mask":
-                assert e.dtype == np.bool_, "'mask' data is bool"
-            else:
-                assert e.dtype == np.uint8, "'image' data is uint8"
-            qstream_write_array(msg_stream, e.flatten())
+        if self.image_len > 0:
+            msg_stream.writeUInt32(self.image_len)
+            for (im_name, e) in zip(self.image_names, image_values):
+                if im_name == "mask":
+                    assert e.dtype == np.bool_, "'mask' data is bool"
+                else:
+                    assert e.dtype == np.uint8, "'image' data is uint8"
+                qstream_write_array(msg_stream, e.flatten())
 
         try:
             # send the message over the socket
