@@ -20,6 +20,6 @@ If you use shapelink in a scientific publication, please cite it with:
 
 .. pull-quote::
 
-   Philipp Rosendahl, Paul Müller, Eoghan O'Connell (2021), Shape-Link version X.X.X: Python
-   library for interfacing with Shape-In [Software]. Available at
-   https://github.com/ZELLMECHANIK-DRESDEN/shapelink.
+   Philipp Rosendahl, Paul Müller, Eoghan O'Connell (2021), Shape-Link
+   version X.X.X: Python library for interfacing with Shape-In [Software].
+   Available at https://github.com/ZELLMECHANIK-DRESDEN/shapelink.
