@@ -212,9 +212,29 @@ class ShapeInSimulator:
                 print("EOT success")
 
 
-def start_simulator(path, features=None, verbose=1,
-                    destination="tcp://localhost:6666"):
-    """Run a Shape-In simulator using data from an RT-DC dataset"""
+def start_simulator(path, features=None, destination="tcp://localhost:6666",
+                    verbose=1):
+    """Run a Shape-In simulator using data from an RT-DC dataset
+
+    Parameters
+    ----------
+    path : str
+        File path to a .rtdc file
+    features : list, default None
+        A list of RT-DC features e.g., ["image", "circ", "deform"]
+    destination : str
+        The socket to which the ShapeInSimulator will connect. By defaul it is
+        set to "tcp://localhost:6666". These are the protocol, host and port
+        in the form "protocol://host:port".
+    verbose : Bool, default 1
+        Prints extra information during the transfer process, such as simulator
+        speed.
+
+    See Also
+    --------
+    shapelink.cli.run_simulator
+
+    """
     with dclab.new_dataset(path) as ds:
         if verbose:
             print("Opened dataset", ds.identifier, ds.title)
