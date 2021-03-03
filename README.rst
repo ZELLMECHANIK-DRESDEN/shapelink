@@ -27,7 +27,7 @@ Running tests
 
 ::
 
-    python setup.py test
+    pytest tests
 
 
 
