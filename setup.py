@@ -43,7 +43,6 @@ setup(
             "shape-link = shapelink.cli:main",
         ],
     },
-    setup_requires=['pytest-runner'],
     python_requires=">=3.6",
     include_package_data=True,
     keywords=["fcs", "flow cytometry", "flow cytometry standard"],
