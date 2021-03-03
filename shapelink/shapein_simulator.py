@@ -235,9 +235,9 @@ def start_simulator(path, features=None, destination="tcp://localhost:6666",
         The socket to which the ShapeInSimulator will connect. By default it is
         set to "tcp://localhost:6666". These are the protocol, host and port
         in the form "protocol://host:port".
-    verbose : Bool, default 1
+    verbose : int
         Prints extra information during the transfer process, such as simulator
-        speed.
+        speed. Increment to increase verbosity.
 
     See Also
     --------

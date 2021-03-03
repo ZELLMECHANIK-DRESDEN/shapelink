@@ -17,11 +17,13 @@ prints the rolling mean of a few
 
 The main action happens in the
 :func:`handle_event <shapelink.shapelink_plugin.ShapeLinkPlugin.handle_event>`
-function - your plugin **must** implement at least this function. The function
+function. Your plugin **must** implement both this function and the
 :func:`choose_features <shapelink.shapelink_plugin.ShapeLinkPlugin.choose_features>`
-can be used to specify three lists of features (scalar, traces, images). The
+function, which can be used to specify three lists of features (scalar, traces, images). The
 :download:`Verify Aspect Ratio plugin <../plugins/slp_verify_aspect_ratio.py>` shows
-how to use this method.
+how to use the
+:func:`choose_features <shapelink.shapelink_plugin.ShapeLinkPlugin.choose_features>`
+function.
 The two functions
 :func:`after_register <shapelink.shapelink_plugin.ShapeLinkPlugin.after_register>`
 and

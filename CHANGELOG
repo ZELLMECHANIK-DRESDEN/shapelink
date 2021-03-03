@@ -1,5 +1,5 @@
-0.1.4
- - enh: allow user plugins to specify a list of RT-DC features. This stops
+0.2.0
+ - feat: allow user plugins to specify a list of RT-DC features. This stops
    unnecessary transfer of data. This will also over-ride the -f command
    line interface option.
  - test: add a test function for the ShapeLinkPlugin.choose_features method,
