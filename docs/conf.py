@@ -75,7 +75,7 @@ master_doc = 'index'
 project = 'shapelink'
 github_project = 'ZELLMECHANIK-DRESDEN/' + project
 copyright = '2015, Shape-Link developers'
-author = 'Philipp Rosendahl, Paul Müller'
+author = "Philipp Rosendahl, Paul Müller, Eoghan O'Connell"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

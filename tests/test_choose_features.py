@@ -8,23 +8,35 @@ from shapelink.shapelink_plugin import EventData
 data_dir = pathlib.Path(__file__).parent / "data"
 
 
-class ExampleShapeLinkPlugin(ShapeLinkPlugin):
+class ChooseFeaturesShapeLinkPlugin(ShapeLinkPlugin):
+    """Checks if only the chosen features are transferred"""
+    def __init__(self, *args, **kwargs):
+        super(ChooseFeaturesShapeLinkPlugin, self).__init__(*args, **kwargs)
+
     def choose_features(self):
-        return list(([], [], []))
+        sc_features = ["deform", "circ"]
+        tr_features = []
+        im_features = ["image"]
+        user_feats = list((sc_features, tr_features, im_features))
+        return user_feats
 
     def handle_event(self, event_data: EventData) -> bool:
+        """Check that the chosen features were transferred"""
+        assert self.reg_features.scalars == ["deform", "circ"]
+        assert self.reg_features.traces == []
+        assert self.reg_features.images == ["image"]
+
         return False
 
 
-def test_run_plugin_with_simulator():
+def test_run_plugin_with_user_defined_features():
     # create new thread for simulator
     th = threading.Thread(target=shapein_simulator.start_simulator,
                           args=(str(data_dir / "calibration_beads_47.rtdc"),
-                                ["deform", "area_um"],
-                                "tcp://localhost:6666", 0)
+                                None, "tcp://localhost:6667", 0)
                           )
     # setup plugin
-    p = ExampleShapeLinkPlugin()
+    p = ChooseFeaturesShapeLinkPlugin(bind_to='tcp://*:6667')
     # start simulator
     th.start()
     # start plugin

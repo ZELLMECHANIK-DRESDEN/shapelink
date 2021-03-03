@@ -35,10 +35,46 @@ class ShapeInSimulator:
         self.registered = False
         self.response = list()
 
+    def send_request_for_features(self):
+        # prepare message in byte stream
+        msg = QtCore.QByteArray()
+        msg_stream = QtCore.QDataStream(msg, QtCore.QIODevice.WriteOnly)
+        msg_stream.writeInt64(msg_def.MSG_ID_FEATURE_REQ)
+
+        try:
+            if self.verbose:
+                print("Send request for features message")
+            # send the message over the socket
+            self.socket.send(msg)
+            # get ACK before return
+            rcv = QtCore.QByteArray(self.socket.recv())
+        except zmq.error.ZMQError:
+            if self.verbose:
+                print("ZMQ Error")
+            return
+
+        rcv_stream = QtCore.QDataStream(rcv, QtCore.QIODevice.ReadOnly)
+        feats = []
+        for i in range(3):
+            feats.append(rcv_stream.readQStringList())
+
+        r = rcv_stream.readInt64()
+        if r == msg_def.MSG_ID_FEATURE_REQ_ACK:
+            if self.verbose:
+                print("Feature Request ACK")
+        else:
+            print("Feature Request failed!")
+
+        if len([i for sublist in feats for i in sublist]) == 0:
+            if self.verbose:
+                print("Feature Request List Empty")
+            feats = None
+        return feats
+
     def register_parameters(self,
-                            scalar_hdf5_names=None,
-                            vector_hdf5_names=None,
-                            image_hdf5_names=None,
+                            scalar_reg_features=None,
+                            vector_reg_features=None,
+                            image_reg_features=None,
                             image_shape=None,
                             settings_names=None,
                             settings_values=None
@@ -48,21 +84,21 @@ class ShapeInSimulator:
             settings_values = []
         if settings_names is None:
             settings_names = []
-        if image_hdf5_names is None:
-            image_hdf5_names = []
+        if image_reg_features is None:
+            image_reg_features = []
         if image_shape is None:
             image_shape = []
-        if vector_hdf5_names is None:
-            vector_hdf5_names = []
-        if scalar_hdf5_names is None:
-            scalar_hdf5_names = []
+        if vector_reg_features is None:
+            vector_reg_features = []
+        if scalar_reg_features is None:
+            scalar_reg_features = []
         assert len(settings_values) == len(
             settings_names), "Mismatch setting names and values"
 
-        self.scalar_len = len(scalar_hdf5_names)
-        self.vector_len = len(vector_hdf5_names)
-        self.image_len = len(image_hdf5_names)
-        self.image_names = image_hdf5_names
+        self.scalar_len = len(scalar_reg_features)
+        self.vector_len = len(vector_reg_features)
+        self.image_len = len(image_reg_features)
+        self.image_names = image_reg_features
         self.image_shape_len = len(image_shape)
         self.response.clear()
 
@@ -72,9 +108,9 @@ class ShapeInSimulator:
         msg_stream.writeInt64(msg_def.MSG_ID_REGISTER)
 
         # send parameters
-        msg_stream.writeQStringList(scalar_hdf5_names)
-        msg_stream.writeQStringList(vector_hdf5_names)
-        msg_stream.writeQStringList(image_hdf5_names)
+        msg_stream.writeQStringList(scalar_reg_features)
+        msg_stream.writeQStringList(vector_reg_features)
+        msg_stream.writeQStringList(image_reg_features)
         qstream_write_array(msg_stream, image_shape)
 
         # send settings
@@ -120,24 +156,25 @@ class ShapeInSimulator:
         assert len(scalar_values) == self.scalar_len
         assert len(vector_values) == self.vector_len
         assert len(image_values) == self.image_len
-
         assert np.issubdtype(scalar_values.dtype, np.floating)
 
-        qstream_write_array(msg_stream, scalar_values)
+        if self.scalar_len > 0:
+            qstream_write_array(msg_stream, scalar_values)
 
-        msg_stream.writeUInt32(self.vector_len)
-        for e in vector_values:
-            assert e.dtype == np.int16, "fluorescence data is int16"
-            qstream_write_array(msg_stream, e)
+        if self.vector_len > 0:
+            msg_stream.writeUInt32(self.vector_len)
+            for e in vector_values:
+                assert e.dtype == np.int16, "fluorescence data is int16"
+                qstream_write_array(msg_stream, e)
 
-        msg_stream.writeUInt32(self.image_len)
-
-        for (im_name, e) in zip(self.image_names, image_values):
-            if im_name == "mask":
-                assert e.dtype == np.bool_, "'mask' data is bool"
-            else:
-                assert e.dtype == np.uint8, "'image' data is uint8"
-            qstream_write_array(msg_stream, e.flatten())
+        if self.image_len > 0:
+            msg_stream.writeUInt32(self.image_len)
+            for (im_name, e) in zip(self.image_names, image_values):
+                if im_name == "mask":
+                    assert e.dtype == np.bool_, "'mask' data is bool"
+                else:
+                    assert e.dtype == np.uint8, "'image' data is uint8"
+                qstream_write_array(msg_stream, e.flatten())
 
         try:
             # send the message over the socket
@@ -184,31 +221,60 @@ class ShapeInSimulator:
                 print("EOT success")
 
 
-def start_simulator(path, features=None, verbose=1):
-    """Run a Shape-In simulator using data from an RT-DC dataset"""
+def start_simulator(path, features=None, destination="tcp://localhost:6666",
+                    verbose=1):
+    """Run a Shape-In simulator using data from an RT-DC dataset
+
+    Parameters
+    ----------
+    path : str
+        File path to a .rtdc file
+    features : list, default None
+        A list of RT-DC features e.g., ["image", "circ", "deform"]
+    destination : str
+        The socket to which the ShapeInSimulator will connect. By default it is
+        set to "tcp://localhost:6666". These are the protocol, host and port
+        in the form "protocol://host:port".
+    verbose : int
+        Prints extra information during the transfer process, such as simulator
+        speed. Increment to increase verbosity.
+
+    See Also
+    --------
+    shapelink.cli.run_simulator
+
+    """
     with dclab.new_dataset(path) as ds:
         if verbose:
             print("Opened dataset", ds.identifier, ds.title)
         if features is None:
             features = ds.features_innate
-        s = ShapeInSimulator()
-        im_features = sorted({"image", "mask"}
-                             & set(ds.features)
-                             & set(features))
-        sc_features = sorted(set(ds.features_scalar)
-                             & set(ds.features)
-                             & set(features))
-        if "trace" in ds and "trace" in features:
-            tr_features = sorted(ds['trace'].keys())
+        s = ShapeInSimulator(destination=destination)
+
+        # check for user plugin-defined features
+        feats = s.send_request_for_features()
+        if feats is not None:
+            sc_features, tr_features, im_features = feats
         else:
-            tr_features = []
+            sc_features = sorted(set(ds.features_scalar)
+                                 & set(ds.features)
+                                 & set(features))
+
+            if "trace" in ds and "trace" in features:
+                tr_features = sorted(ds['trace'].keys())
+            else:
+                tr_features = []
+
+            im_features = sorted({"image", "mask"}
+                                 & set(ds.features)
+                                 & set(features))
 
         image_shape = np.array(ds["image"][0].shape, dtype=np.uint16)
 
         s.register_parameters(
-            scalar_hdf5_names=sc_features,
-            vector_hdf5_names=tr_features,
-            image_hdf5_names=im_features,
+            scalar_reg_features=sc_features,
+            vector_reg_features=tr_features,
+            image_reg_features=im_features,
             image_shape=image_shape,
             settings_names=[],
             settings_values=[],
