@@ -1,11 +1,11 @@
 0.2.0
  - feat: allow user plugins to specify a list of RT-DC features. This stops
    unnecessary transfer of data. This will also over-ride the -f command
-   line interface option.
+   line interface option (#1, #4)
  - test: add a test function for the ShapeLinkPlugin.choose_features method,
    add a plugin example for choosing features. Use pytest instead of deprecated
    setup.py test.
- - ref: clean up of the ShapeLinkPlugin.handle_messages method
+ - ref: clean up of the ShapeLinkPlugin.handle_messages method (#6)
  - docs: add several lines in sec_plugins for slp_verify_aspect_ratio plugin
 0.1.3
  - enh: transfer mask images as binary (#3)
