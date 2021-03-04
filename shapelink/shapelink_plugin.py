@@ -111,6 +111,7 @@ class ShapeLinkPlugin(abc.ABC):
         assert len(feats) == 3
         # feats must be sent one by one, list of lists doesn't work
         for feat in feats:
+            check_for_allowed_features(feat)
             send_stream.writeQStringList(feat)
         send_stream.writeInt64(msg_def.MSG_ID_FEATURE_REQ_ACK)
 
@@ -120,10 +121,6 @@ class ShapeLinkPlugin(abc.ABC):
         self.reg_features.traces = rcv_stream.readQStringList()
         self.reg_features.images = rcv_stream.readQStringList()
         self.image_shape = qstream_read_array(rcv_stream, np.uint16)
-
-        check_for_allowed_features(self.reg_features.scalars)
-        check_for_allowed_features(self.reg_features.traces)
-        check_for_allowed_features(self.reg_features.images)
 
         self.scalar_len = len(self.reg_features.scalars)
         self.vector_len = len(self.reg_features.traces)

@@ -6,6 +6,7 @@ import threading
 import click
 
 from . import shapein_simulator
+from .feat_def import check_for_allowed_features
 
 
 @click.group()
@@ -36,6 +37,7 @@ def run_simulator(path, features=None):
     """
     if features is not None:
         features = [f.strip() for f in features.split(",")]
+        check_for_allowed_features(features)
     shapein_simulator.start_simulator(path, features)
 
 
@@ -61,6 +63,7 @@ def run_plugin(path, with_simulator=None, features=None):
     if with_simulator is not None:
         if features is not None:
             features = [f.strip() for f in features.split(",")]
+            check_for_allowed_features(features)
         th = threading.Thread(target=shapein_simulator.start_simulator,
                               args=(with_simulator, features,
                                     "tcp://localhost:6666", 0))
