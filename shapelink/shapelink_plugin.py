@@ -7,6 +7,7 @@ import zmq
 
 from . import msg_def
 from .util import qstream_read_array
+from .feat_def import check_for_allowed_features
 
 
 class EventData:
@@ -119,6 +120,10 @@ class ShapeLinkPlugin(abc.ABC):
         self.reg_features.traces = rcv_stream.readQStringList()
         self.reg_features.images = rcv_stream.readQStringList()
         self.image_shape = qstream_read_array(rcv_stream, np.uint16)
+
+        check_for_allowed_features(self.reg_features.scalars)
+        check_for_allowed_features(self.reg_features.traces)
+        check_for_allowed_features(self.reg_features.images)
 
         self.scalar_len = len(self.reg_features.scalars)
         self.vector_len = len(self.reg_features.traces)
