@@ -14,6 +14,7 @@ import zmq
 
 from . import msg_def
 from .util import qstream_write_array
+from .feat_def import check_for_allowed_features
 
 
 class ShapeInSimulator:
@@ -251,11 +252,12 @@ def start_simulator(path, features=None, destination="tcp://localhost:6666",
             features = ds.features_innate
         s = ShapeInSimulator(destination=destination)
 
-        # check for user plugin-defined features
+        # check for user plugin-defined features, which override the CLI
         feats = s.send_request_for_features()
         if feats is not None:
             sc_features, tr_features, im_features = feats
         else:
+            check_for_allowed_features(features)
             sc_features = sorted(set(ds.features_scalar)
                                  & set(ds.features)
                                  & set(features))
