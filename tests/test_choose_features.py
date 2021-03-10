@@ -44,7 +44,7 @@ def test_run_plugin_with_user_defined_features():
 
 
 class FailChooseFeaturesShapeLinkPlugin(ShapeLinkPlugin):
-    """Checks if only the chosen features are transferred"""
+    """Raises a ValueError because 'deformation' isn't a feature"""
     def __init__(self, *args, **kwargs):
         super(FailChooseFeaturesShapeLinkPlugin, self).__init__(
             *args, **kwargs)
