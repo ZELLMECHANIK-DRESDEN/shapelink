@@ -43,11 +43,11 @@ def test_run_plugin_with_user_defined_features():
         p.handle_messages()
 
 
-
 class FailChooseFeaturesShapeLinkPlugin(ShapeLinkPlugin):
     """Checks if only the chosen features are transferred"""
     def __init__(self, *args, **kwargs):
-        super(FailChooseFeaturesShapeLinkPlugin, self).__init__(*args, **kwargs)
+        super(FailChooseFeaturesShapeLinkPlugin, self).__init__(
+            *args, **kwargs)
 
     def choose_features(self):
         user_feats = ["deformation", "circ", "image"]
@@ -75,7 +75,6 @@ def test_run_plugin_with_bad_user_defined_features():
     # start plugin
     with pytest.raises(ValueError):
         p.handle_messages()
-
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@ from . import msg_def
 from .util import qstream_write_array
 import dclab.definitions as dfn
 
+
 class ShapeInSimulator:
     def __init__(self, destination="tcp://localhost:6666", verbose=False):
         self.verbose = verbose

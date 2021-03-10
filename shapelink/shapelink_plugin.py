@@ -9,6 +9,7 @@ from . import msg_def
 from .util import qstream_read_array
 from .feat_util import map_requested_features_to_defined_features
 
+
 class EventData:
     def __init__(self):
         self.id = -1
