@@ -7,8 +7,7 @@ import zmq
 
 from . import msg_def
 from .util import qstream_read_array
-from .feat_def import check_for_allowed_features
-
+import dclab.definitions as dfn
 
 class EventData:
     def __init__(self):
@@ -111,7 +110,7 @@ class ShapeLinkPlugin(abc.ABC):
         assert len(feats) == 3
         # feats must be sent one by one, list of lists doesn't work
         for feat in feats:
-            check_for_allowed_features(feat)
+            dfn.feature_exists(feat, scalar_only=False)
             send_stream.writeQStringList(feat)
         send_stream.writeInt64(msg_def.MSG_ID_FEATURE_REQ_ACK)
 

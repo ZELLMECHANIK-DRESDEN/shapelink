@@ -14,8 +14,7 @@ import zmq
 
 from . import msg_def
 from .util import qstream_write_array
-from .feat_def import check_for_allowed_features
-
+import dclab.definitions as dfn
 
 class ShapeInSimulator:
     def __init__(self, destination="tcp://localhost:6666", verbose=False):
@@ -257,7 +256,8 @@ def start_simulator(path, features=None, destination="tcp://localhost:6666",
         if feats is not None:
             sc_features, tr_features, im_features = feats
         else:
-            check_for_allowed_features(features)
+            for feat in features:
+                dfn.feature_exists(feat, scalar_only=False)
             sc_features = sorted(set(ds.features_scalar)
                                  & set(ds.features)
                                  & set(features))
