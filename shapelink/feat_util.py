@@ -13,7 +13,7 @@ def map_requested_features_to_defined_features(features):
     ----------
     features : list
         A flat list which is mapped to features as defined in dclab.definitions
-    
+
     TODO: don't include ancillary features, only innate (shapein
             doesn't have ancillary features)
     '''
