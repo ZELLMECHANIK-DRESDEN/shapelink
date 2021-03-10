@@ -252,12 +252,14 @@ def start_simulator(path, features=None, destination="tcp://localhost:6666",
         s = ShapeInSimulator(destination=destination)
 
         # check for user plugin-defined features, which override the CLI
-        feats = s.send_request_for_features()
-        if feats is not None:
-            sc_features, tr_features, im_features = feats
+        plugin_features = s.send_request_for_features()
+        if plugin_features is not None:
+            sc_features, tr_features, im_features = plugin_features
         else:
             for feat in features:
-                dfn.feature_exists(feat, scalar_only=False)
+                if not dfn.feature_exists(feat, scalar_only=False):
+                    raise ValueError("Invalid feature name '{}'".format(feat))
+
             sc_features = sorted(set(ds.features_scalar)
                                  & set(ds.features)
                                  & set(features))
