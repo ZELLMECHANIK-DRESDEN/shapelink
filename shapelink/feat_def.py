@@ -108,6 +108,7 @@ features_allowed = list([i[0] for i in FEATURES_SCALAR]
                         + [i[0] for i in FEATURES_NON_SCALAR]
                         + FLUOR_TRACES)
 
+
 # Allow only real RT-DC features
 def check_for_allowed_features(feat_list):
     for feat in feat_list:
