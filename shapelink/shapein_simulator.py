@@ -18,6 +18,7 @@ from .util import qstream_write_array
 
 class ShapeInSimulator:
     def __init__(self, destination="tcp://localhost:6666", verbose=False):
+        self.destination = destination
         self.verbose = verbose
         if self.verbose:
             print("Init ShapeIn Simulator")
