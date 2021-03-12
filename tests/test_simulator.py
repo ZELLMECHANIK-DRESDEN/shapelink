@@ -1,6 +1,4 @@
 
-import pytest
-import pathlib
 import zmq
 from shapelink.shapein_simulator import ShapeInSimulator, start_simulator
 
@@ -23,11 +21,3 @@ def test_ShapeInSimulator_destination(ShapeInSimulator=ShapeInSimulator):
     s = ShapeInSimulator(destination="tcp://localhost:6667")
     assert s.destination == "tcp://localhost:6667"
     s.zmq_context.destroy()
-
-
-def test_start_simulator_incorrect_feature():
-
-    features = ["image", "banana", "circ"]
-    path = pathlib.Path(__file__).resolve().parent / "data/calibration_beads_47.rtdc"
-    
-    start_simulator(path=path, features=features)
