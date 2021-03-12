@@ -20,10 +20,7 @@ class VerifyAspectRatioPlugin(ShapeLinkPlugin):
         print("\n End of transmission\n")
 
     def choose_features(self):
-        sc_features = ["size_x", "size_y", "aspect"]
-        tr_features = []
-        im_features = []
-        user_feats = list((sc_features, tr_features, im_features))
+        user_feats = ["size_x", "size_y", "aspect"]
         return user_feats
 
     def handle_event(self, event_data):

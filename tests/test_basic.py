@@ -10,7 +10,7 @@ data_dir = pathlib.Path(__file__).parent / "data"
 
 class ExampleShapeLinkPlugin(ShapeLinkPlugin):
     def choose_features(self):
-        return list(([], [], []))
+        return list()
 
     def handle_event(self, event_data: EventData) -> bool:
         return False

@@ -7,7 +7,7 @@ import zmq
 
 from .msg_def import message_ids
 from .util import qstream_read_array
-from .feat_def import check_for_allowed_features
+from .feat_util import map_requested_features_to_defined_features
 
 
 class EventData:
@@ -106,12 +106,12 @@ class ShapeLinkPlugin(abc.ABC):
 
         feats is a list of three lists. The sublists are sc, tr, and im
         """
-        feats = self.choose_features()
+        user_feats = self.choose_features()
+        feats = map_requested_features_to_defined_features(user_feats)
         assert isinstance(feats, list), "feats is a list"
         assert len(feats) == 3
         # feats must be sent one by one, list of lists doesn't work
         for feat in feats:
-            check_for_allowed_features(feat)
             send_stream.writeQStringList(feat)
         send_stream.writeInt64(message_ids["MSG_ID_FEATURE_REQ_ACK"])
 
