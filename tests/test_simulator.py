@@ -1,6 +1,6 @@
 
 import zmq
-from shapelink.shapein_simulator import ShapeInSimulator, start_simulator
+from shapelink.shapein_simulator import ShapeInSimulator
 
 
 def test_ShapeInSimulator_zmq_attributes(ShapeInSimulator=ShapeInSimulator):
@@ -11,8 +11,8 @@ def test_ShapeInSimulator_zmq_attributes(ShapeInSimulator=ShapeInSimulator):
     assert isinstance(s.socket, zmq.Socket)
     # close the context
     s.zmq_context.destroy()
-    assert s.zmq_context.closed == True, "Should be True"
-    assert s.socket.closed == True, "Should be True"
+    assert s.zmq_context.closed is True, "Should be True"
+    assert s.socket.closed is True, "Should be True"
 
 
 def test_ShapeInSimulator_destination(ShapeInSimulator=ShapeInSimulator):
