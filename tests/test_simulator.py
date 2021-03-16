@@ -15,9 +15,9 @@ def test_ShapeInSimulator_zmq_attributes(ShapeInSimulator=ShapeInSimulator):
     assert s.socket.closed is True, "Should be True"
 
 
-def test_ShapeInSimulator_destination(ShapeInSimulator=ShapeInSimulator):
-    ''' Check the ZMQ aspects of the simulator,
-    then close the context and sockets. '''
-    s = ShapeInSimulator(destination="tcp://localhost:6667")
-    assert s.destination == "tcp://localhost:6667"
-    s.zmq_context.destroy()
+# def test_ShapeInSimulator_destination(ShapeInSimulator=ShapeInSimulator):
+#     ''' Check the ZMQ aspects of the simulator,
+#     then close the context and sockets. '''
+#     s = ShapeInSimulator(destination="tcp://localhost:6667")
+#     assert s.destination == "tcp://localhost:6667"
+#     s.zmq_context.destroy()
