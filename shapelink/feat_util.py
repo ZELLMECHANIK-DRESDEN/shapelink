@@ -13,21 +13,29 @@ def map_requested_features_to_defined_features(features):
     Parameters
     ----------
     features : list
-        A flat list which is mapped to features as defined in dclab.definitions
+        A flat list of strings which is mapped to features as defined
+        in the `dclab.definitions` module.
 
-    TODO: don't include ancillary features, only innate (shapein
-            doesn't have ancillary features)
     '''
 
     sc_features, tr_features, im_features = [], [], []
     for feat in features:
-        if dfn.feature_exists(feat, scalar_only=False):
-            if dfn.feature_exists(feat, scalar_only=True):
-                sc_features.append(feat)
-            elif feat in dfn.FLUOR_TRACES:
-                tr_features.append(feat)
-            else:
-                im_features.append(feat)
+        # deal with Fluoresence trace feature names
+        if feat in dfn.FLUOR_TRACES:
+            tr_features.append(feat)
+        elif feat.startswith("trace/"):
+            fluor_name = feat.split("/")[-1]
+            if fluor_name in dfn.FLUOR_TRACES:
+                tr_features.append(fluor_name)
+        elif feat == "trace":
+            for fluor_name in dfn.FLUOR_TRACES:
+                tr_features.append(fluor_name)
+        # deal with Scalar feature names
+        elif dfn.feature_exists(feat, scalar_only=True):
+            sc_features.append(feat)
+        # deal with non-scalar features (excl. traces)
+        elif dfn.feature_exists(feat, scalar_only=False):
+            im_features.append(feat)
         else:
             raise ValueError("Invalid feature name '{}'".format(feat))
 
