@@ -78,9 +78,7 @@ def test_run_plugin_with_bad_user_defined_features():
 
 
 class ChooseTraceFeaturesShapeLinkPlugin(ShapeLinkPlugin):
-    """Checks if only the chosen features are transferred.
-    All fluorescence traces are transferred because 'trace' is provided.
-    """
+    """All FLUOR_TRACES are transferred because "trace" is provided"""
     def __init__(self, *args, **kwargs):
         super(ChooseTraceFeaturesShapeLinkPlugin, self).__init__(
             *args, **kwargs)
