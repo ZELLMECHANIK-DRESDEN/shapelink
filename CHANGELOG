@@ -1,3 +1,9 @@
+0.2.1
+ - enh: The user can now provide a single list of features in a plugin. The
+   feature names are mapped to the correct scalar, trace, or image list
+   required for data transfer. Now handles trace information.
+ - test: updated and expanded tests for choosing features. Added tests for the
+   mapping of features.
 0.2.0
  - feat: allow user plugins to specify a list of RT-DC features. This stops
    unnecessary transfer of data. This will also over-ride the -f command
