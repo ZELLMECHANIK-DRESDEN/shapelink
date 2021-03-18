@@ -77,6 +77,42 @@ def test_run_plugin_with_bad_user_defined_features():
         p.handle_messages()
 
 
+class ChooseTraceFeaturesShapeLinkPlugin(ShapeLinkPlugin):
+    """All FLUOR_TRACES are transferred because "trace" is provided"""
+    def __init__(self, *args, **kwargs):
+        super(ChooseTraceFeaturesShapeLinkPlugin, self).__init__(
+            *args, **kwargs)
+
+    def choose_features(self):
+        user_feats = ["deform", "circ", "image", "trace"]
+        return user_feats
+
+    def handle_event(self, event_data: EventData) -> bool:
+        """Check that the chosen features were transferred"""
+        assert self.reg_features.scalars == ["deform", "circ"]
+        assert self.reg_features.traces == [
+            "fl1_median", "fl1_raw", "fl2_median",
+            "fl2_raw", "fl3_median", "fl3_raw"]
+        assert self.reg_features.images == ["image"]
+
+        return False
+
+
+def test_run_plugin_with_user_defined_trace_features():
+    # create new thread for simulator
+    th = threading.Thread(target=shapein_simulator.start_simulator,
+                          args=(str(data_dir / "calibration_beads_47.rtdc"),
+                                None, "tcp://localhost:6667", 0)
+                          )
+    # setup plugin
+    p = ChooseTraceFeaturesShapeLinkPlugin(bind_to='tcp://*:6667')
+    # start simulator
+    th.start()
+    # start plugin
+    for ii in range(49):
+        p.handle_messages()
+
+
 if __name__ == "__main__":
     # Run all tests
     loc = locals()
