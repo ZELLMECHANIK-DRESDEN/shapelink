@@ -18,7 +18,7 @@ def map_requested_features_to_defined_features(features):
     """
     sc_features, tr_features, im_features = [], [], []
     for feat in features:
-        # deal with Fluoresence trace feature names
+        # deal with Fluorescence trace feature names
         if feat in dfn.FLUOR_TRACES:
             tr_features.append(feat)
         elif feat.startswith("trace/"):
