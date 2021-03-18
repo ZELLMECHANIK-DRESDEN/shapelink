@@ -5,7 +5,7 @@ import numpy as np
 from PySide2 import QtCore
 import zmq
 
-from . import msg_def
+from .msg_def import message_ids
 from .util import qstream_read_array
 from .feat_util import map_requested_features_to_defined_features
 
@@ -74,16 +74,16 @@ class ShapeLinkPlugin(abc.ABC):
         send_data = QtCore.QByteArray()
         send_stream = QtCore.QDataStream(send_data, QtCore.QIODevice.WriteOnly)
 
-        if r == msg_def.MSG_ID_FEATURE_REQ:
+        if r == message_ids["MSG_ID_FEATURE_REQ"]:
             # Allow plugin to request features
             self.run_features_request_message(send_stream)
 
-        elif r == msg_def.MSG_ID_REGISTER:
+        elif r == message_ids["MSG_ID_REGISTER"]:
             # register
             self.run_register_message(rcv_stream, send_stream)
             self.after_register()
 
-        elif r == msg_def.MSG_ID_EOT:
+        elif r == message_ids["MSG_ID_EOT"]:
             # End of Transmission (EOT) message
             self.run_EOT_message(send_stream)
             self.after_transmission()
@@ -113,7 +113,7 @@ class ShapeLinkPlugin(abc.ABC):
         # feats must be sent one by one, list of lists doesn't work
         for feat in feats:
             send_stream.writeQStringList(feat)
-        send_stream.writeInt64(msg_def.MSG_ID_FEATURE_REQ_ACK)
+        send_stream.writeInt64(message_ids["MSG_ID_FEATURE_REQ_ACK"])
 
     def run_register_message(self, rcv_stream, send_stream):
         # register
@@ -127,7 +127,7 @@ class ShapeLinkPlugin(abc.ABC):
         self.image_len = len(self.reg_features.images)
         assert self.image_shape_len == len(self.image_shape)
 
-        send_stream.writeInt64(msg_def.MSG_ID_REGISTER_ACK)
+        send_stream.writeInt64(message_ids["MSG_ID_REGISTER_ACK"])
         if self.verbose:
             print(" Registered data container formats:")
             print("  scalars: ", self.reg_features.scalars)
@@ -170,7 +170,7 @@ class ShapeLinkPlugin(abc.ABC):
 
     def run_EOT_message(self, send_stream):
         # End of Transmission (EOT) message
-        send_stream.writeInt64(msg_def.MSG_ID_EOT_ACK)
+        send_stream.writeInt64(message_ids["MSG_ID_EOT_ACK"])
 
     @abc.abstractmethod
     def handle_event(self, event_data: EventData) -> bool:
