@@ -30,13 +30,13 @@ jobs:
         pip install -e .[all]
         # show installed packages
         pip freeze
-    - name: Test with pytest
-      run: |
-        coverage run -m --source=shapelink pytest --ignore=tests/benchmarking_tests
     - name: Benchmark with pytest-benchmark
       run: |
         pytest tests/benchmarking_tests --benchmark-json="output.json"
         cat output.json
+    - name: Test with pytest
+      run: |
+        coverage run -m --source=shapelink pytest --ignore=tests/benchmarking_tests
     - name: Lint with flake8
       run: |
         flake8 .
