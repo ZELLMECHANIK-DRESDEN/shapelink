@@ -1,0 +1,76 @@
+{
+    "machine_info": {
+        "node": "01-GUC-GRP-0059",
+        "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel",
+        "machine": "AMD64",
+        "python_compiler": "MSC v.1927 64 bit (AMD64)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.8.6",
+        "python_version": "3.8.6",
+        "python_build": [
+            "tags/v3.8.6:db45529",
+            "Sep 23 2020 15:52:53"
+        ],
+        "release": "10",
+        "system": "Windows",
+        "cpu": {
+            "vendor_id": "unknown",
+            "hardware": "unknown",
+            "brand": "unknown"
+        }
+    },
+    "commit_info": {
+        "id": "a40166fb2a056fe5ebf9e59251bbbd0a0257b7af",
+        "time": "2021-03-19T15:18:20+01:00",
+        "author_time": "2021-03-19T15:18:20+01:00",
+        "dirty": false,
+        "project": "shapelink",
+        "branch": "initial_benchmark_tests"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_benchmark_simulator",
+            "fullname": "tests/benchmarking_tests/test_bm_basic_plugin.py::test_benchmark_simulator",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.229816,
+                "max": 5.245889399999999,
+                "mean": 5.23635474,
+                "stddev": 0.006640242347082822,
+                "rounds": 5,
+                "median": 5.236728400000004,
+                "iqr": 0.010460474999996805,
+                "q1": 5.230235400000001,
+                "q3": 5.2406958749999975,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 5.229816,
+                "hd15iqr": 5.245889399999999,
+                "ops": 0.19097254667662183,
+                "total": 26.1817737,
+                "data": [
+                    5.230375200000001,
+                    5.245889399999999,
+                    5.229816,
+                    5.236728400000004,
+                    5.238964699999997
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2021-03-19T14:25:22.461053",
+    "version": "3.2.3"
+}

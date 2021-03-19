@@ -22,5 +22,5 @@ How to run locally:
 
 1. To create your local benchmark data:
    pytest tests\benchmarking_tests --benchmark-save="eoghan_190321_WINpy38.json"
-2. To compare with your local benchmark data:
+2. To compare with your local benchmark data (note that it doesn't save anything):
    pytest tests\benchmarking_tests --benchmark-compare="Windows-CPython-3.8-64bit\0001_eoghan_190321_WINpy38" --benchmark-compare-fail=median:5%
