@@ -30,6 +30,7 @@ def test_run_plugin_with_simulator():
     # start plugin
     for ii in range(49):
         p.handle_messages()
+    th.join()
 
 
 if __name__ == "__main__":
