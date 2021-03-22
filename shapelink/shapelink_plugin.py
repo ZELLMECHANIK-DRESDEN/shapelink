@@ -19,7 +19,8 @@ class EventData:
 
 
 class ShapeLinkPlugin(abc.ABC):
-    def __init__(self, bind_to='tcp://*:6666', verbose=False):
+    def __init__(self, bind_to='tcp://*:6666', random_port=False,
+                 verbose=False):
         """Shape-Link plug-in meta class
 
         Parameters
@@ -38,7 +39,11 @@ class ShapeLinkPlugin(abc.ABC):
         self.socket = self.zmq_context.socket(zmq.REP)
         self.socket.RCVTIMEO = 5000
         self.socket.SNDTIMEO = 5000
-        self.socket.bind(bind_to)
+        if random_port:
+            self.port_address = self.socket.bind_to_random_port('tcp://*')
+        else:
+            self.socket.bind(bind_to)
+            self.port_address = bind_to[-4:]
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0
