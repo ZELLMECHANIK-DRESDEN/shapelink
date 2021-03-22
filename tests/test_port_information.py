@@ -26,7 +26,6 @@ def test_random_IP(random_port=True):
     p = ExampleShapeLinkPlugin(random_port=random_port)
     assert p.ip_address == "tcp://*"
     assert isinstance(p.port_address, int)
-    assert 49152 < p.port_address < 65536
 
 
 if __name__ == "__main__":
