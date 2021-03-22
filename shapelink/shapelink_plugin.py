@@ -39,11 +39,11 @@ class ShapeLinkPlugin(abc.ABC):
         self.socket = self.zmq_context.socket(zmq.REP)
         self.socket.RCVTIMEO = 5000
         self.socket.SNDTIMEO = 5000
-        self.ip_address = bind_to[:-4]
+        self.ip_address = bind_to[:-5]
         self.port_address = bind_to[-4:]
         if random_port:
             self.port_address = self.socket.bind_to_random_port(
-                'tcp://*')
+                self.ip_address)
         else:
             self.socket.bind(bind_to)
         self.verbose = verbose
