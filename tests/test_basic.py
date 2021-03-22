@@ -16,15 +16,15 @@ class ExampleShapeLinkPlugin(ShapeLinkPlugin):
         return False
 
 
-def test_run_plugin_with_simulator():
+def test_run_plugin_with_simulator(port_number="6666"):
     # create new thread for simulator
     th = threading.Thread(target=shapein_simulator.start_simulator,
                           args=(str(data_dir / "calibration_beads_47.rtdc"),
                                 ["deform", "area_um"],
-                                "tcp://localhost:6666", 0)
+                                "tcp://localhost:{}".format(port_number), 0)
                           )
     # setup plugin
-    p = ExampleShapeLinkPlugin()
+    p = ExampleShapeLinkPlugin(bind_to='tcp://*:{}'.format(port_number))
     # start simulator
     th.start()
     # start plugin
