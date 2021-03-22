@@ -1,6 +1,7 @@
 0.2.1
  - docs: added how-to guide for local and remote benchmark tests
  - test: added first benchmark test
+ - test: allow Plugin to bind to random port, fixes ZMQ Address Error
  - ref: reorganised message definitions into a dict
  - test: added tests for message definitions and EventData
  - enh: The user can now provide a single list of features in a plugin. The
