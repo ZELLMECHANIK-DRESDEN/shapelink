@@ -12,7 +12,7 @@ Running tests
 
     pytest tests
 
-If you wish to not run the benchmarking tests (which can take some time) use
+If you don't wish to run the benchmarking tests (which can take some time) use
 
 ::
 
