@@ -19,26 +19,37 @@ class EventData:
 
 
 class ShapeLinkPlugin(abc.ABC):
-    def __init__(self, bind_to='tcp://*:6666', verbose=False):
+    def __init__(self, bind_to='tcp://*:6666', random_port=False,
+                 verbose=False):
         """Shape-Link plug-in meta class
 
         Parameters
         ----------
         bind_to: str
             IP and port to bind to (where Shape-In runs)
+        random_port: bool
+            If set to `True`, ZMQ will use its `socket.bind_to_random_port`
+            method. This will override only the port number of the `bind_to`
+            ShapeLinkPlugin argument.
         verbose: bool
             Set to `True` to see additional debugging information.
         """
         super(ShapeLinkPlugin, self).__init__()
-        self.verbose = verbose
-        if self.verbose:
-            print(" Init Shape-Link")
-            print(" Bind to: ", bind_to)
         self.zmq_context = zmq.Context.instance()
         self.socket = self.zmq_context.socket(zmq.REP)
         self.socket.RCVTIMEO = 5000
         self.socket.SNDTIMEO = 5000
-        self.socket.bind(bind_to)
+        self.ip_address = bind_to[:-5]
+        self.port_address = bind_to[-4:]
+        if random_port:
+            self.port_address = self.socket.bind_to_random_port(
+                self.ip_address)
+        else:
+            self.socket.bind(bind_to)
+        self.verbose = verbose
+        if self.verbose:
+            print(" Init Shape-Link")
+            print(" Bind to: {}{}".format(self.ip_address, self.port_address))
         self.scalar_len = 0
         self.vector_len = 0
         self.image_len = 0

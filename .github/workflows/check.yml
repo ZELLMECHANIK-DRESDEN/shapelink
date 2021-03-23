@@ -25,14 +25,18 @@ jobs:
       run: |
         # prerequisites
         python -m pip install --upgrade pip wheel
-        python -m pip install codecov coverage flake8 pytest
+        python -m pip install codecov coverage flake8 pytest pytest-benchmark
         # install dependencies
         pip install -e .[all]
         # show installed packages
         pip freeze
+    - name: Benchmark with pytest-benchmark
+      run: |
+        pytest tests/benchmarking_tests --benchmark-storage=".benchmarks_github_actions" --benchmark-json="output.json" --benchmark-compare="*/ActionsBenchmark_190321_UBUNTUpy38" --benchmark-compare-fail=median:5%
+        cat output.json
     - name: Test with pytest
       run: |
-        coverage run -m --source=shapelink pytest
+        coverage run -m --source=shapelink pytest --ignore=tests/benchmarking_tests
     - name: Lint with flake8
       run: |
         flake8 .
