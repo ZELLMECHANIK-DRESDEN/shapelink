@@ -29,8 +29,8 @@ Running tests
 
     pytest tests
 
-More information on running tests and benchmarking can be found at
-`shapelink.readthedocs.io <https://shapelink.readthedocs.io>`__.
+More information on running tests and benchmarking can be found
+`here <https://shapelink.readthedocs.io/en/stable/sec_dev_tests.html>`__.
 
 
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/shapelink.svg

@@ -14,7 +14,7 @@ Documentation
    sec_getting_started
    sec_cli
    sec_plugins
-   sec_dev_benchmark
+   sec_dev_tests
    sec_code_reference
 
 .. toctree::
