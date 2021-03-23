@@ -42,7 +42,7 @@ where "NAME" should be similar to "user_date_otherinfo" for tracking purposes,
 e.g., "eoghan_190321_WINpy38.json". Note that a counter is appended as a prefix
 in the saved file, e.g., "0001_eoghan_190321_WINpy38.json"
 
-Then, when you need to make sure new changes aren't regressing Shapelink, use
+Then, when you need to make sure new changes aren't regressing Shape-Link, use
 
 ::
 
@@ -53,7 +53,7 @@ Then, when you need to make sure new changes aren't regressing Shapelink, use
 Adding a new Benchmark for Github Actions
 -----------------------------------------
 
-Shapelink uses continuous integration with GitHub Actions. The benchmarking
+Shape-Link uses continuous integration with GitHub Actions. The benchmarking
 tests are run under the `"Benchmark with pytest-benchmark"
 <https://github.com/ZELLMECHANIK-DRESDEN/shapelink/blob/main/.github/workflows/check.yml>`__
 step. Any push or pull requests will trigger this step. To add a new benchmark file for GitHub
