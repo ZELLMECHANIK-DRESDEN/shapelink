@@ -30,7 +30,38 @@ def test_run_plugin_with_simulator():
     # start plugin
     for ii in range(49):
         p.handle_messages()
-    th.join()
+
+
+def test_run_plugin_with_verbose_simulator():
+    # create new thread for simulator
+    th = threading.Thread(target=shapein_simulator.start_simulator,
+                          args=(str(data_dir / "calibration_beads_47.rtdc"),
+                                ["deform", "area_um"],
+                                "tcp://localhost:6666", 1)
+                          )
+    # setup plugin
+    p = ExampleShapeLinkPlugin()
+    # start simulator
+    th.start()
+    # start plugin
+    for ii in range(49):
+        p.handle_messages()
+
+
+def test_run_plugin_with_verbose_plugin():
+    # create new thread for simulator
+    th = threading.Thread(target=shapein_simulator.start_simulator,
+                          args=(str(data_dir / "calibration_beads_47.rtdc"),
+                                ["deform", "area_um"],
+                                "tcp://localhost:6666", 0)
+                          )
+    # setup plugin
+    p = ExampleShapeLinkPlugin(verbose=True)
+    # start simulator
+    th.start()
+    # start plugin
+    for ii in range(49):
+        p.handle_messages()
 
 
 if __name__ == "__main__":
