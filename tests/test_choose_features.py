@@ -77,6 +77,44 @@ def test_run_plugin_with_bad_user_defined_features():
         p.handle_messages()
 
 
+class ChooseImageFeaturesShapeLinkPlugin(ShapeLinkPlugin):
+    """Checks if only the chosen features are transferred"""
+    def __init__(self, *args, **kwargs):
+        super(ChooseImageFeaturesShapeLinkPlugin, self).__init__(
+            *args, **kwargs)
+
+    def choose_features(self):
+        user_feats = ["image", "contour", "mask"]
+        return user_feats
+
+    def handle_event(self, event_data: EventData) -> bool:
+        """Check that the chosen image features were transferred"""
+        image, contour, mask = event_data.images
+
+        assert self.reg_features.images == ["image", "contour", "mask"]
+        assert len(contour.shape) == 2, "should have two axes, x and y"
+        assert contour.shape[-1] == 2, "final axis should be length 2"
+        assert len(image.shape) == 2, "should be two axes, x and y"
+        assert len(mask.shape) == 2, "should be two axes, x and y"
+
+        return False
+
+
+def test_run_plugin_with_user_defined_image_features():
+    # create new thread for simulator
+    th = threading.Thread(target=shapein_simulator.start_simulator,
+                          args=(str(data_dir / "calibration_beads_47.rtdc"),
+                                None, "tcp://localhost:6667", 0)
+                          )
+    # setup plugin
+    p = ChooseImageFeaturesShapeLinkPlugin(bind_to='tcp://*:6667')
+    # start simulator
+    th.start()
+    # start plugin
+    for ii in range(49):
+        p.handle_messages()
+
+
 class ChooseTraceFeaturesShapeLinkPlugin(ShapeLinkPlugin):
     """All FLUOR_TRACES are transferred because "trace" is provided"""
     def __init__(self, *args, **kwargs):
