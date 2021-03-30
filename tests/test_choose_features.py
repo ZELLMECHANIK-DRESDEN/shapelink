@@ -158,7 +158,7 @@ class ChooseTraceFeaturesShapeLinkPlugin(ShapeLinkPlugin):
             *args, **kwargs)
 
     def choose_features(self):
-        user_feats = ["deform", "circ", "trace"]
+        user_feats = ["deform", "circ", "image", "trace"]
         return user_feats
 
     def handle_event(self, event_data: EventData) -> bool:
@@ -167,6 +167,7 @@ class ChooseTraceFeaturesShapeLinkPlugin(ShapeLinkPlugin):
         assert self.reg_features.traces == [
             "fl1_median", "fl1_raw", "fl2_median",
             "fl2_raw", "fl3_median", "fl3_raw"]
+        assert self.reg_features.images == ["image"]
 
         return False
 
@@ -175,10 +176,10 @@ def test_run_plugin_with_user_defined_trace_features():
     # create new thread for simulator
     th = threading.Thread(target=shapein_simulator.start_simulator,
                           args=(str(data_dir / "calibration_beads_47.rtdc"),
-                                None, "tcp://localhost:6667", 0)
+                                None, "tcp://localhost:6668", 0)
                           )
     # setup plugin
-    p = ChooseTraceFeaturesShapeLinkPlugin(bind_to='tcp://*:6667')
+    p = ChooseTraceFeaturesShapeLinkPlugin(bind_to='tcp://*:6668')
     # start simulator
     th.start()
     # start plugin
