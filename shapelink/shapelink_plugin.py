@@ -175,8 +175,8 @@ class ShapeLinkPlugin(abc.ABC):
                     e.images[-1] = np.reshape(e.images[-1], self.image_shape)
                 elif im_name == "contour":
                     e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                    e.images[-1] = np.reshape(e.images[-1],
-                                             (len(e.images[-1])//2, 2))
+                    e.images[-1] = np.reshape(
+                        e.images[-1], (len(e.images[-1])//2, 2))
                 elif im_name == "image":
                     e.images.append(qstream_read_array(rcv_stream, np.uint8))
                     e.images[-1] = np.reshape(e.images[-1], self.image_shape)

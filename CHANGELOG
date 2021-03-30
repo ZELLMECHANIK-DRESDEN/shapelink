@@ -1,4 +1,7 @@
 0.2.1
+ - test: added image and scalar choose feature tests, verbose tests
+ - fix: contour shape is now correctly reshaped by the plugin. The image
+   features are now not repeatedly reshaped.
  - docs: added how-to guide for local and remote benchmark tests
  - test: added first benchmark test
  - test: allow Plugin to bind to random port, fixes ZMQ Address Error

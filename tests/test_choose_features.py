@@ -6,8 +6,6 @@ from shapelink import shapein_simulator
 from shapelink import ShapeLinkPlugin
 from shapelink.shapelink_plugin import EventData
 
-import numpy as np
-
 data_dir = pathlib.Path(__file__).parent / "data"
 
 
