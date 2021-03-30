@@ -172,11 +172,17 @@ class ShapeLinkPlugin(abc.ABC):
             for im_name in self.reg_features.images:
                 if im_name == "mask":
                     e.images.append(qstream_read_array(rcv_stream, np.bool_))
-                else:
+                    e.images[-1] = np.reshape(e.images[-1], self.image_shape)
+                elif im_name == "contour":
                     e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                for i, im in enumerate(e.images):
-                    e.images[i] = np.reshape(e.images[i], self.image_shape)
-
+                    e.images[-1] = np.reshape(e.images[-1],
+                                             (len(e.images[-1])//2, 2))
+                elif im_name == "image":
+                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
+                    e.images[-1] = np.reshape(e.images[-1], self.image_shape)
+                else:
+                    raise ValueError(
+                        "Image feature '{}' not recognised".format(im_name))
         return e
 
     def run_EOT_message(self, send_stream):
