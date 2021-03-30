@@ -158,7 +158,7 @@ class ChooseTraceFeaturesShapeLinkPlugin(ShapeLinkPlugin):
             *args, **kwargs)
 
     def choose_features(self):
-        user_feats = ["deform", "circ", "image", "trace"]
+        user_feats = ["deform", "circ", "trace"]
         return user_feats
 
     def handle_event(self, event_data: EventData) -> bool:
@@ -167,7 +167,6 @@ class ChooseTraceFeaturesShapeLinkPlugin(ShapeLinkPlugin):
         assert self.reg_features.traces == [
             "fl1_median", "fl1_raw", "fl2_median",
             "fl2_raw", "fl3_median", "fl3_raw"]
-        assert self.reg_features.images == ["image"]
 
         return False
 
