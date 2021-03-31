@@ -171,15 +171,15 @@ class ShapeLinkPlugin(abc.ABC):
             # read images piece by piece, checking for binary mask
             for im_name in self.reg_features.images:
                 if im_name == "mask":
-                    e.images.append(qstream_read_array(rcv_stream, np.bool_))
-                    e.images[-1] = np.reshape(e.images[-1], self.image_shape)
+                    mask_data = qstream_read_array(rcv_stream, np.bool_)
+                    e.images.append(mask_data.reshape(self.image_shape))
                 elif im_name == "contour":
-                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                    e.images[-1] = np.reshape(
-                        e.images[-1], (len(e.images[-1])//2, 2))
+                    contour_data = qstream_read_array(rcv_stream, np.uint8)
+                    e.images.append(
+                        contour_data.reshape(len(contour_data)//2, 2))
                 elif im_name == "image":
-                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                    e.images[-1] = np.reshape(e.images[-1], self.image_shape)
+                    image_data = qstream_read_array(rcv_stream, np.uint8)
+                    e.images.append(image_data.reshape(self.image_shape))
                 else:
                     raise ValueError(
                         "Image feature '{}' not recognised".format(im_name))
