@@ -1,12 +1,15 @@
 import pathlib
 import threading
 import pytest
+import numpy as np
+import dclab
 
 from shapelink import shapein_simulator
 from shapelink import ShapeLinkPlugin
 from shapelink.shapelink_plugin import EventData
 
 data_dir = pathlib.Path(__file__).parent / "data"
+ds_test = dclab.new_dataset(data_dir / "calibration_beads_47.rtdc")
 
 
 class ChooseFeaturesShapeLinkPlugin(ShapeLinkPlugin):
@@ -120,18 +123,30 @@ class ChooseImageFeaturesShapeLinkPlugin(ShapeLinkPlugin):
             *args, **kwargs)
 
     def choose_features(self):
-        user_feats = ["image", "contour", "mask"]
+        user_feats = ["image", "contour", "mask", "index"]
         return user_feats
 
     def handle_event(self, event_data: EventData) -> bool:
         """Check that the chosen image features were transferred"""
+        index = event_data.scalars[0]
         image, contour, mask = event_data.images
 
+        # check the shape of the image features
         assert self.reg_features.images == ["image", "contour", "mask"]
         assert len(contour.shape) == 2, "should have two axes, x and y"
         assert contour.shape[-1] == 2, "final axis should be length 2"
         assert len(image.shape) == 2, "should be two axes, x and y"
         assert len(mask.shape) == 2, "should be two axes, x and y"
+
+        image_known = ds_test["image"][0]
+        contour_known = ds_test["contour"][0]
+        mask_known = ds_test["mask"][0]
+
+        # check that the data matches between before and after transfer
+        if index == 1:  # dclab["index"] starts at 1
+            assert np.allclose(image, image_known)
+            assert np.allclose(contour, contour_known)
+            assert np.allclose(mask, mask_known)
 
         return False
 
