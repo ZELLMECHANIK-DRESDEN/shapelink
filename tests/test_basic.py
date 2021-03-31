@@ -34,19 +34,18 @@ def test_run_plugin_with_simulator():
     th.join()
 
 
-def test_run_plugin_with_verbose_simulator(capsys):
+def test_run_plugin_with_verbose_start_simulator(capsys):
     # create new thread for simulator
     th = threading.Thread(target=shapein_simulator.start_simulator,
                           args=(str(data_dir / "calibration_beads_47.rtdc"),
                                 ["deform", "area_um"],
                                 "tcp://localhost:6666", 1)
                           )
-    # print statements from verbose simulator
+    # print statements from verbose `start_simulator`
     verbose_str_1 = r"Opened dataset mm-hdf5_.* calibration_beads - M1\n"
     verbose_str_2 = r"Send event data:\n"
     verbose_str_3 = r"Simulation event rate: .* Hz\n" + \
                     r"Simulation time: .* s\n"
-
 
     # setup plugin
     p = ExampleShapeLinkPlugin()
@@ -70,13 +69,22 @@ def test_run_plugin_with_verbose_simulator(capsys):
     th.join()
 
 
-def test_run_plugin_with_verbose_plugin():
+def test_run_plugin_with_verbose_plugin(capsys):
     # create new thread for simulator
     th = threading.Thread(target=shapein_simulator.start_simulator,
                           args=(str(data_dir / "calibration_beads_47.rtdc"),
                                 ["deform", "area_um"],
                                 "tcp://localhost:6666", 0)
                           )
+    # print statements from verbose plugin
+    verbose_str_1 = " Init Shape-Link\n" + \
+                    " Bind to: .*\n"
+    verbose_str_2 = " Registered data container formats:\n" + \
+                    " scalars: .*\n" + \
+                    " traces: .*\n" + \
+                    " images: .*\n" + \
+                    " image_shape: .*\n"
+
     # setup plugin
     p = ExampleShapeLinkPlugin(verbose=True)
     # start simulator
@@ -84,6 +92,15 @@ def test_run_plugin_with_verbose_plugin():
     # start plugin
     for ii in range(49):
         p.handle_messages()
+        # collect verbose print statements for checking
+        captured = capsys.readouterr()
+        if ii == 0:
+            match = re.match(verbose_str_1, captured.out)
+        elif ii == 1:
+            match = re.match(verbose_str_2, captured.out)
+        else:
+            match = re.match('', '')
+        assert captured.out == match.group()
     th.join()
 
 

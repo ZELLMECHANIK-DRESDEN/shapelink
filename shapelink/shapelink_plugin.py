@@ -141,10 +141,10 @@ class ShapeLinkPlugin(abc.ABC):
         send_stream.writeInt64(message_ids["MSG_ID_REGISTER_ACK"])
         if self.verbose:
             print(" Registered data container formats:")
-            print("  scalars: ", self.reg_features.scalars)
-            print("  traces:  ", self.reg_features.traces)
-            print("  images:  ", self.reg_features.images)
-            print("  image_shape:  ", self.image_shape)
+            print(" scalars:", self.reg_features.scalars)
+            print(" traces:", self.reg_features.traces)
+            print(" images:", self.reg_features.images)
+            print(" image_shape:", self.image_shape)
 
     def run_event_message(self, r, rcv_stream):
         # data package with id r
