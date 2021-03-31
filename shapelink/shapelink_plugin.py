@@ -141,10 +141,10 @@ class ShapeLinkPlugin(abc.ABC):
         send_stream.writeInt64(message_ids["MSG_ID_REGISTER_ACK"])
         if self.verbose:
             print(" Registered data container formats:")
-            print("  scalars: ", self.reg_features.scalars)
-            print("  traces:  ", self.reg_features.traces)
-            print("  images:  ", self.reg_features.images)
-            print("  image_shape:  ", self.image_shape)
+            print(" scalars:", self.reg_features.scalars)
+            print(" traces:", self.reg_features.traces)
+            print(" images:", self.reg_features.images)
+            print(" image_shape:", self.image_shape)
 
     def run_event_message(self, r, rcv_stream):
         # data package with id r
@@ -171,12 +171,18 @@ class ShapeLinkPlugin(abc.ABC):
             # read images piece by piece, checking for binary mask
             for im_name in self.reg_features.images:
                 if im_name == "mask":
-                    e.images.append(qstream_read_array(rcv_stream, np.bool_))
+                    mask_data = qstream_read_array(rcv_stream, np.bool_)
+                    e.images.append(mask_data.reshape(self.image_shape))
+                elif im_name == "contour":
+                    contour_data = qstream_read_array(rcv_stream, np.uint8)
+                    e.images.append(
+                        contour_data.reshape(len(contour_data)//2, 2))
+                elif im_name == "image":
+                    image_data = qstream_read_array(rcv_stream, np.uint8)
+                    e.images.append(image_data.reshape(self.image_shape))
                 else:
-                    e.images.append(qstream_read_array(rcv_stream, np.uint8))
-                for i, im in enumerate(e.images):
-                    e.images[i] = np.reshape(e.images[i], self.image_shape)
-
+                    raise ValueError(
+                        "Image feature '{}' not recognised".format(im_name))
         return e
 
     def run_EOT_message(self, send_stream):
